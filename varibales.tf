@@ -20,3 +20,9 @@ variable "default_org_tag" {
   type    = string
   default = "Car-Rental"
 }
+
+variable "number_of_likeable_items" {
+  type     = number
+  default  = 30
+  nullable = false
+}

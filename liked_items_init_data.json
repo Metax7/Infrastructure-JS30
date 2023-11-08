@@ -1,0 +1,333 @@
+{
+    "Item1": {
+      "AppName": {
+        "S": "JS30"
+      },
+      "ItemId": {
+        "S": "1"
+      },
+      "LikeCounter": {
+        "N": "0"
+      }
+    },
+    "Item3": {
+        "AppName": {
+          "S": "JS30"
+        },
+        "ItemId": {
+          "S": "3"
+        },
+        "LikeCounter": {
+          "N": "0"
+        }
+      },
+      "Item4": {
+        "AppName": {
+          "S": "JS30"
+        },
+        "ItemId": {
+          "S": "4"
+        },
+        "LikeCounter": {
+          "N": "0"
+        }
+      },
+      "Item2": {
+          "AppName": {
+            "S": "JS30"
+          },
+          "ItemId": {
+            "S": "2"
+          },
+          "LikeCounter": {
+            "N": "0"
+          }
+  },
+  "Item5": {
+    "AppName": {
+      "S": "JS30"
+    },
+    "ItemId": {
+      "S": "5"
+    },
+    "LikeCounter": {
+      "N": "0"
+    }
+  },
+  "Item6": {
+      "AppName": {
+        "S": "JS30"
+      },
+      "ItemId": {
+        "S": "6"
+      },
+      "LikeCounter": {
+        "N": "0"
+      }
+    },
+    "Item7": {
+      "AppName": {
+        "S": "JS30"
+      },
+      "ItemId": {
+        "S": "7"
+      },
+      "LikeCounter": {
+        "N": "0"
+      }
+    },
+    "Item8": {
+        "AppName": {
+          "S": "JS30"
+        },
+        "ItemId": {
+          "S": "8"
+        },
+        "LikeCounter": {
+          "N": "0"
+        }
+},
+"Item9": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "9"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item10": {
+    "AppName": {
+      "S": "JS30"
+    },
+    "ItemId": {
+      "S": "10"
+    },
+    "LikeCounter": {
+      "N": "0"
+    }
+  },
+  "Item11": {
+    "AppName": {
+      "S": "JS30"
+    },
+    "ItemId": {
+      "S": "11"
+    },
+    "LikeCounter": {
+      "N": "0"
+    }
+  },
+  "Item12": {
+      "AppName": {
+        "S": "JS30"
+      },
+      "ItemId": {
+        "S": "12"
+      },
+      "LikeCounter": {
+        "N": "0"
+      }
+},
+"Item13": {
+"AppName": {
+  "S": "JS30"
+},
+"ItemId": {
+  "S": "13"
+},
+"LikeCounter": {
+  "N": "0"
+}
+},
+"Item14": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "14"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item15": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "15"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item16": {
+    "AppName": {
+      "S": "JS30"
+    },
+    "ItemId": {
+      "S": "16"
+    },
+    "LikeCounter": {
+      "N": "0"
+    }
+},
+"Item17": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "17"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item18": {
+    "AppName": {
+      "S": "JS30"
+    },
+    "ItemId": {
+      "S": "18"
+    },
+    "LikeCounter": {
+      "N": "0"
+    }
+  },
+  "Item19": {
+      "AppName": {
+        "S": "JS30"
+      },
+      "ItemId": {
+        "S": "19"
+      },
+      "LikeCounter": {
+        "N": "0"
+      }
+},
+"Item20": {
+"AppName": {
+  "S": "JS30"
+},
+"ItemId": {
+  "S": "20"
+},
+"LikeCounter": {
+  "N": "0"
+}
+},
+"Item21": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "21"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item22": {
+    "AppName": {
+      "S": "JS30"
+    },
+    "ItemId": {
+      "S": "22"
+    },
+    "LikeCounter": {
+      "N": "0"
+    }
+},
+"Item23": {
+"AppName": {
+"S": "JS30"
+},
+"ItemId": {
+"S": "23"
+},
+"LikeCounter": {
+"N": "0"
+}
+},
+"Item24": {
+"AppName": {
+  "S": "JS30"
+},
+"ItemId": {
+  "S": "24"
+},
+"LikeCounter": {
+  "N": "0"
+}
+},
+"Item25": {
+"AppName": {
+  "S": "JS30"
+},
+"ItemId": {
+  "S": "25"
+},
+"LikeCounter": {
+  "N": "0"
+}
+},
+"Item26": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "26"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item27": {
+  "AppName": {
+    "S": "JS30"
+  },
+  "ItemId": {
+    "S": "27"
+  },
+  "LikeCounter": {
+    "N": "0"
+  }
+},
+"Item28": {
+"AppName": {
+"S": "JS30"
+},
+"ItemId": {
+"S": "28"
+},
+"LikeCounter": {
+"N": "0"
+}
+},
+"Item29": {
+"AppName": {
+"S": "JS30"
+},
+"ItemId": {
+"S": "29"
+},
+"LikeCounter": {
+"N": "0"
+}
+},
+"Item30": {
+"AppName": {
+"S": "JS30"
+},
+"ItemId": {
+"S": "30"
+},
+"LikeCounter": {
+"N": "0"
+}
+}
+
+}
