@@ -32,16 +32,18 @@ resource "aws_dynamodb_table" "users_liked_items_ddb_prod" {
 
 resource "aws_dynamodb_table_item" "liked_items" {
 
-  for_each   = local.tf_data
+  # for_each   = local.tf_data
+  count      = var.number_of_likeable_items
   table_name = aws_dynamodb_table.liked_items_ddb_prod.name
   hash_key   = aws_dynamodb_table.liked_items_ddb_prod.hash_key
   range_key  = aws_dynamodb_table.liked_items_ddb_prod.range_key
+  item       = jsonencode(templatefile("ddb_js30_liked_items_init.tftpl", { ItemId = count.index }))
 
-  item = jsonencode(each.value)
+  # item = jsonencode(each.value)
 }
 
-locals {
-  json_data = file("./liked_items_init_data.json")
-  tf_data   = jsondecode(local.json_data)
-}
+# locals {
+#   json_data = file("./liked_items_init_data.json")
+#   tf_data   = jsondecode(local.json_data)
+# }
 
