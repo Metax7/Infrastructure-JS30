@@ -1,0 +1,136 @@
+
+Integration Mapping in Request Integration
+UpdateItem
+{
+    "TableName": "LIKED_ITEMS",
+    "Key": {
+        "AppName": {
+            "S": "JS30"
+        },
+        "ItemId": {
+            "N": "id"
+        }
+    },
+    "UpdateExpression": "set LikeCounter = LikeCounter + :num",
+    "ExpressionAttributeValues": {
+        ":num": {"N": "1"}
+    },
+    "ReturnValues" : "UPDATED_NEW"
+}
+
+Response Integration
+Content-Type application/json
+
+#set($value = $input.json('Attributes.LikeCounter.N'))
+#set($l = $value.length())
+#set($l = $l - 1)
+$value.substring(1,$l)
+
+{
+    "TableName": "LIKED_ITEM_BY_USER",
+    "Item": {
+        "UserId": {
+            "S": "$input.path('$.userId')"
+        },
+        "LikedItems": {
+            "NS": "$input.path('$.likedItems')"
+        },
+        "AppName": {
+            "S": "JS30"
+        }
+        
+    },
+"ReturnValues" : "NONE"
+	
+}
+
+Integration Response
+
+##  See https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-mapping-template-reference.html
+##  This template will pass through all parameters including path, querystring, header, stage variables, and context through to the integration endpoint via the body/payload
+#set($allParams = $input.params())
+#set($inputRoot = $input.path('$'))
+$input.json("$")
+#if($inputRoot.toString().contains("error"))
+#set($context.responseOverride.status = 400)
+#end
+{
+"body-json" : $input.json('$'),
+"params" : {
+#foreach($type in $allParams.keySet())
+    #set($params = $allParams.get($type))
+"$type" : {
+    #foreach($paramName in $params.keySet())
+    "$paramName" : "$util.escapeJavaScript($params.get($paramName))"
+        #if($foreach.hasNext),#end
+    #end
+}
+    #if($foreach.hasNext),#end
+#end
+},
+"stage-variables" : {
+#foreach($key in $stageVariables.keySet())
+"$key" : "$util.escapeJavaScript($stageVariables.get($key))"
+    #if($foreach.hasNext),#end
+#end
+},
+"context" : {
+    "account-id" : "$context.identity.accountId",
+    "api-id" : "$context.apiId",
+    "api-key" : "$context.identity.apiKey",
+    "authorizer-principal-id" : "$context.authorizer.principalId",
+    "caller" : "$context.identity.caller",
+    "cognito-authentication-provider" : "$context.identity.cognitoAuthenticationProvider",
+    "cognito-authentication-type" : "$context.identity.cognitoAuthenticationType",
+    "cognito-identity-id" : "$context.identity.cognitoIdentityId",
+    "cognito-identity-pool-id" : "$context.identity.cognitoIdentityPoolId",
+    "http-method" : "$context.httpMethod",
+    "stage" : "$context.stage",
+    "source-ip" : "$context.identity.sourceIp",
+    "user" : "$context.identity.user",
+    "user-agent" : "$context.identity.userAgent",
+    "user-arn" : "$context.identity.userArn",
+    "request-id" : "$context.requestId",
+    "resource-id" : "$context.resourceId",
+    "resource-path" : "$context.resourcePath"
+    }
+}
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "apigateway.amazonaws.com"
+            },
+            "Action": [
+                "sts:AssumeRole"
+            ]
+        }
+    ]
+}
+
+
+{
+        "userId": "someUserId1",
+        "likedItems": ["1","2","5"]
+        
+}
+
+
+GETALL
+
+{
+    "TableName": "LIKED_ITEM_BY_USER",
+    "Key": {
+        "UserId": {
+            "S": "$input.params('userId')"
+        },
+        "AppName": {
+            "S": "JS30"
+        }
+    },
+    "ReturnConsumedCapacity": "TOTAL"
+}
