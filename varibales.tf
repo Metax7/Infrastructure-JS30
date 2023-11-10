@@ -5,8 +5,8 @@ variable "aws_profile" {
 }
 variable "default_region" {
   type        = string
-  default     = "us-east-2"
-  description = "default region of master account"
+  default     = "us-west-1"
+  description = "default region"
 }
 variable "default_tag_created_by" {
   type    = string
@@ -14,11 +14,11 @@ variable "default_tag_created_by" {
 }
 variable "default_tag_environment" {
   type    = string
-  default = "Prod-foundational-infra"
+  default = "sandbox"
 }
 variable "default_org_tag" {
   type    = string
-  default = "Car-Rental"
+  default = "my-best-code"
 }
 
 variable "number_of_likeable_items" {
