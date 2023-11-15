@@ -1,7 +1,10 @@
 terraform {
   required_providers {
-    source  = "hashicorp/aws"
-    version = "5.5.0"
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.5.0"
+    }
+
   }
   backend "s3" {
     bucket         = "mbc-remote-state-metax7-sandbox"
@@ -9,8 +12,7 @@ terraform {
     encrypt        = true
     key            = "js30/sandbox/terraform.tfstate"
     region         = "us-west-1"
-    profile        = ""
-    session_name   = "terraform"
+    profile        = "metax-sandbox-adm"
 
   }
   required_version = ">= 0.13.1"
