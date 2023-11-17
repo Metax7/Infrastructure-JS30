@@ -56,12 +56,6 @@ data "aws_iam_policy_document" "web_site_allow_all_policy_dev" {
   }
 }
 
-data "aws_route53_zone" "metax7_hosted_zone" {
-  name         = "metax7.my-best-code.com"
-  private_zone = false
-}
-
-
 resource "aws_route53_record" "dev_metax7_my-best-code_com-a-record" {
   name    = "dev.metax7.my-best-code.com"
   type    = "A"
