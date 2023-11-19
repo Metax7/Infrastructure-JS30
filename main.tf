@@ -84,3 +84,12 @@ import {
   to = aws_api_gateway_usage_plan_key.api_gw_test_ddb_usageplan_key
   id = "${var.api_gw_usage_plan_id_dev}/${var.api_gw_usage_plan_key_dev}"
 }
+
+import {
+  to = aws_codepipeline.pipeline_dev
+  id = "js30-pipeline"
+}
+import {
+  to = aws_codebuild_project.codedbuild_dev
+  id = "js30-build"
+}

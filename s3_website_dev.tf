@@ -62,7 +62,8 @@ resource "aws_route53_record" "dev_metax7_my-best-code_com-a-record" {
   zone_id = data.aws_route53_zone.metax7_hosted_zone.zone_id
 
   alias {
-    name                   = aws_s3_bucket_website_configuration.website_dev.website_endpoint
+    # name                   = aws_s3_bucket_website_configuration.website_dev.website_endpoint
+    name                   = "s3-website-us-west-1.amazonaws.com"
     zone_id                = aws_s3_bucket.website_bucket_dev.hosted_zone_id
     evaluate_target_health = false
   }
