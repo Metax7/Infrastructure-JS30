@@ -50,3 +50,5 @@ resource "aws_api_gateway_usage_plan_key" "api_gw_test_ddb_usageplan_key" {
   key_type      = "API_KEY"
   usage_plan_id = "xycuoe"
 }
+
+

@@ -28,179 +28,75 @@ variable "number_of_likeable_items" {
   nullable = false
 }
 
-variable "js30_parameters" {
-  type = map(list(object({
+variable "js30_parameters_template" {
+  type = map(object({
     name        = string
     type        = string
     value       = string
     description = string
-  })))
+  }))
   default = {
-    dev = [{
+    CF_DISTR_ID = {
       name        = "CF_DISTR_ID"
       type        = "String"
       value       = ""
       description = "AWS CloudFront Distribution Id"
-      },
-      {
-        name        = "FULL_DOMAIN"
-        type        = "String"
-        value       = ""
-        description = "AWS FULL DOMAIN name used as S3 Bucket name for static hosting"
-      },
-      {
-        name        = "ENV"
-        type        = "String"
-        value       = "dev"
-        description = "Environment the appliaction operates in"
-      },
-      {
-        name        = "AUTH_HEADER"
-        type        = "String"
-        value       = ""
-        description = "Header added to authorized requests"
-      },
-      {
-        name        = "AUTH_TOKEN"
-        type        = "String"
-        value       = ""
-        description = "Token used for authorized requests"
-      },
-      {
-        name        = "APP_NAME"
-        type        = "String"
-        value       = ""
-        description = "Application Name used against Oauth2 Infrastructure"
-      },
-      {
-        name        = "IDP_URL"
-        type        = "String"
-        value       = ""
-        description = "Identity Provider Url"
-      },
-      {
-        name        = "AUTHORIZER_URL"
-        type        = "String"
-        value       = ""
-        description = "Authorizer Url"
-      },
-      {
-        name        = "CACHE_CONTROL"
-        type        = "String"
-        value       = "max-age=60, s-maxage=86400"
-        description = "Cache-Control settings applied one or multiple files in the bucket"
-      }
-    ],
-    prod = [{
-      name        = "CF_DISTR_ID"
+    },
+    FULL_DOMAIN = {
+      name        = "FULL_DOMAIN"
+      type        = "String"
+      value       = "dev.metax7.my-best-code.com"
+      description = "AWS FULL DOMAIN name used as S3 Bucket name for static hosting"
+    },
+    API_GW_URL = {
+      name        = "API_GW_URL"
       type        = "String"
       value       = ""
-      description = "AWS CloudFront Distribution Id"
-      },
-      {
-        name        = "FULL_DOMAIN"
-        type        = "String"
-        value       = ""
-        description = "AWS FULL DOMAIN name used as S3 Bucket name for static hosting"
-      },
-      {
-        name        = "ENV"
-        type        = "String"
-        value       = "prd"
-        description = "Environment the appliaction operates in"
-      },
-      {
-        name        = "AUTH_HEADER"
-        type        = "String"
-        value       = ""
-        description = "Header added to authorized requests"
-      },
-      {
-        name        = "AUTH_TOKEN"
-        type        = "String"
-        value       = ""
-        description = "Token used for authorized requests"
-      },
-      {
-        name        = "APP_NAME"
-        type        = "String"
-        value       = ""
-        description = "Application Name used against Oauth2 Infrastructure"
-      },
-      {
-        name        = "IDP_URL"
-        type        = "String"
-        value       = ""
-        description = "Identity Provider Url"
-      },
-      {
-        name        = "AUTHORIZER_URL"
-        type        = "String"
-        value       = ""
-        description = "Authorizer Url"
-      },
-      {
-        name        = "CACHE_CONTROL"
-        type        = "String"
-        value       = "max-age=60, s-maxage=86400"
-        description = "Cache-Control settings applied one or multiple files in the bucket"
-      }
-    ],
-    statig = [{
-      name        = "CF_DISTR_ID"
+      description = ""
+    },
+    ENV = {
+      name        = "ENV"
+      type        = "String"
+      value       = "dev"
+      description = "Environment the appliaction operates in"
+    },
+
+    AUTH_HEADER = {
+      name        = "AUTH_HEADER"
       type        = "String"
       value       = ""
-      description = "AWS CloudFront Distribution Id"
-      },
-      {
-        name        = "FULL_DOMAIN"
-        type        = "String"
-        value       = ""
-        description = "AWS FULL DOMAIN name used as S3 Bucket name for static hosting"
-      },
-      {
-        name        = "ENV"
-        type        = "String"
-        value       = "staging"
-        description = "Environment the appliaction operates in"
-      },
-      {
-        name        = "AUTH_HEADER"
-        type        = "String"
-        value       = ""
-        description = "Header added to authorized requests"
-      },
-      {
-        name        = "AUTH_TOKEN"
-        type        = "String"
-        value       = ""
-        description = "Token used for authorized requests"
-      },
-      {
-        name        = "APP_NAME"
-        type        = "String"
-        value       = ""
-        description = "Application Name used against Oauth2 Infrastructure"
-      },
-      {
-        name        = "IDP_URL"
-        type        = "String"
-        value       = ""
-        description = "Identity Provider Url"
-      },
-      {
-        name        = "AUTHORIZER_URL"
-        type        = "String"
-        value       = ""
-        description = "Authorizer Url"
-      },
-      {
-        name        = "CACHE_CONTROL"
-        type        = "String"
-        value       = "max-age=60, s-maxage=86400"
-        description = "Cache-Control settings applied one or multiple files in the bucket"
-      }
-    ]
+      description = "Header added to authorized requests"
+    },
+    AUTH_TOKEN = {
+      name        = "AUTH_TOKEN"
+      type        = "String"
+      value       = ""
+      description = "Token used for authorized requests"
+    },
+    APP_NAME = {
+      name        = "APP_NAME"
+      type        = "String"
+      value       = "NONE"
+      description = "Application Name used against Oauth2 Infrastructure"
+    },
+    IDP_URL = {
+      name        = "IDP_URL"
+      type        = "String"
+      value       = "NONE"
+      description = "Identity Provider Url"
+    },
+    AUTHORIZER_URL = {
+      name        = "AUTHORIZER_URL"
+      type        = "String"
+      value       = "NONE"
+      description = "Authorizer Url"
+    },
+    CACHE_CONTROL = {
+      name        = "CACHE_CONTROL"
+      type        = "String"
+      value       = "max-age=60, s-maxage=86400"
+      description = "Cache-Control settings applied one or multiple files in the bucket"
+    }
   }
 }
 
