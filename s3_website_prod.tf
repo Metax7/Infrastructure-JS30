@@ -3,13 +3,13 @@
 
 # __generated__ by Terraform from "js30.metax7.my-best-code.com"
 resource "aws_s3_bucket_policy" "website_pod_bucket_policy" {
-  bucket = "js30.metax7.my-best-code.com"
+  bucket = var.app_prod_full_domain
   policy = "{\"Id\":\"PolicyForCloudFrontPrivateContent\",\"Statement\":[{\"Action\":\"s3:GetObject\",\"Condition\":{\"StringEquals\":{\"AWS:SourceArn\":\"arn:aws:cloudfront::021427789578:distribution/E18OEWTISUYOCJ\"}},\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"cloudfront.amazonaws.com\"},\"Resource\":\"arn:aws:s3:::js30.metax7.my-best-code.com/*\",\"Sid\":\"AllowCloudFrontServicePrincipal\"}],\"Version\":\"2008-10-17\"}"
 }
 
 # __generated__ by Terraform from "js30.metax7.my-best-code.com"
 resource "aws_s3_bucket_website_configuration" "website_prod" {
-  bucket                = "js30.metax7.my-best-code.com"
+  bucket                = var.app_prod_full_domain
   expected_bucket_owner = null
   routing_rules         = null
   error_document {
@@ -22,7 +22,7 @@ resource "aws_s3_bucket_website_configuration" "website_prod" {
 
 # __generated__ by Terraform from "js30.metax7.my-best-code.com"
 resource "aws_s3_bucket" "web_site_bucket_prod" {
-  bucket              = "js30.metax7.my-best-code.com"
+  bucket              = var.app_prod_full_domain
   bucket_prefix       = null
   force_destroy       = null
   object_lock_enabled = false

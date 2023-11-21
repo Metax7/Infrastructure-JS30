@@ -6,7 +6,7 @@ resource "aws_s3_bucket_website_configuration" "website_dev" {
 }
 
 resource "aws_s3_bucket" "website_bucket_dev" {
-  bucket = "dev.metax7.my-best-code.com"
+  bucket = "dev.${var.metax7_full_domain}"
 
   lifecycle {
     prevent_destroy = true
@@ -57,13 +57,13 @@ data "aws_iam_policy_document" "web_site_allow_all_policy_dev" {
 }
 
 resource "aws_route53_record" "dev_metax7_my-best-code_com-a-record" {
-  name    = "dev.metax7.my-best-code.com"
+  name    = "dev.${var.metax7_full_domain}"
   type    = "A"
   zone_id = data.aws_route53_zone.metax7_hosted_zone.zone_id
 
   alias {
-    # name                   = aws_s3_bucket_website_configuration.website_dev.website_endpoint
-    name                   = "s3-website-us-west-1.amazonaws.com"
+    name = replace(aws_s3_bucket_website_configuration.website_dev.website_endpoint, "dev.${var.metax7_full_domain}.", "")
+    # name                   = "s3-website-us-west-1.amazonaws.com"
     zone_id                = aws_s3_bucket.website_bucket_dev.hosted_zone_id
     evaluate_target_health = false
   }
