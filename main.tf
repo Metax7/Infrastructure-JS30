@@ -36,18 +36,18 @@ provider "aws" {
 
 # terraform plan -generate-config-out=s3_prod.tf
 import {
-  id = "js30.metax7.my-best-code.com"
+  id = var.app_prod_full_domain
   to = aws_s3_bucket.web_site_bucket_prod
 }
 
 import {
-  id = "js30.metax7.my-best-code.com"
+  id = var.app_prod_full_domain
   to = aws_s3_bucket_website_configuration.website_prod
 }
 
 import {
   to = aws_s3_bucket_policy.website_pod_bucket_policy
-  id = "js30.metax7.my-best-code.com"
+  id = var.app_prod_full_domain
 }
 
 import {

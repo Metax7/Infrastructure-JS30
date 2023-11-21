@@ -25,7 +25,7 @@ resource "aws_cloudfront_cache_policy" "policy" {
 
 # __generated__ by Terraform from "E18OEWTISUYOCJ"
 resource "aws_cloudfront_distribution" "distribution" {
-  aliases             = ["js30.metax7.my-best-code.com"]
+  aliases             = ["${var.app_prod_full_domain}"]
   comment             = null
   default_root_object = "index.html"
   enabled             = true
@@ -60,7 +60,7 @@ resource "aws_cloudfront_distribution" "distribution" {
     realtime_log_config_arn    = null
     response_headers_policy_id = null
     smooth_streaming           = false
-    target_origin_id           = "js30.metax7.my-best-code.com.s3.us-west-1.amazonaws.com"
+    target_origin_id           = "${var.app_prod_full_domain}.s3.${var.default_region}.amazonaws.com"
     trusted_key_groups         = []
     trusted_signers            = []
     viewer_protocol_policy     = "redirect-to-https"
@@ -68,9 +68,9 @@ resource "aws_cloudfront_distribution" "distribution" {
   origin {
     connection_attempts      = 3
     connection_timeout       = 10
-    domain_name              = "js30.metax7.my-best-code.com.s3.us-west-1.amazonaws.com"
+    domain_name              = "${var.app_prod_full_domain}.s3.${var.default_region}.amazonaws.com"
     origin_access_control_id = "E3MC3VKLKXGPCV"
-    origin_id                = "js30.metax7.my-best-code.com.s3.us-west-1.amazonaws.com"
+    origin_id                = "${var.app_prod_full_domain}.s3.${var.default_region}.amazonaws.com"
     origin_path              = null
   }
   restrictions {
@@ -91,7 +91,7 @@ resource "aws_cloudfront_distribution" "distribution" {
 # __generated__ by Terraform from "E3MC3VKLKXGPCV"
 resource "aws_cloudfront_origin_access_control" "policy" {
   description                       = "Managed by Terraform"
-  name                              = "js30.metax7.my-best-code.com.s3.us-west-1.amazonaws.com"
+  name                              = "${var.app_prod_full_domain}.s3.${var.default_region}.amazonaws.com"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"

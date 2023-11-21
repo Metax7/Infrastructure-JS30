@@ -39,7 +39,7 @@ variable "js30_parameters_template" {
     CF_DISTR_ID = {
       name        = "CF_DISTR_ID"
       type        = "String"
-      value       = ""
+      value       = "NONE"
       description = "AWS CloudFront Distribution Id"
     },
     FULL_DOMAIN = {
@@ -98,6 +98,11 @@ variable "js30_parameters_template" {
       description = "Cache-Control settings applied one or multiple files in the bucket"
     }
   }
+}
+
+variable "app_prod_full_domain" {
+  type    = string
+  default = "js30.metax7.my-best-code.com"
 }
 
 variable "parameter_store_prefix" {
@@ -168,4 +173,19 @@ variable "api_gw_usage_plan_id_dev" {
 variable "api_gw_usage_plan_key_dev" {
   type      = string
   sensitive = false
+}
+
+variable "regional_api_domain_prefix" {
+  type    = string
+  default = "api-r."
+}
+
+variable "edge_optimized_api_domain_prefix" {
+  type    = string
+  default = "api-eo."
+}
+
+variable "metax7_full_domain" {
+  type    = string
+  default = "metax7.my-best-code.com"
 }

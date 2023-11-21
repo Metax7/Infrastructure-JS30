@@ -9,8 +9,12 @@ resource "aws_api_gateway_usage_plan" "api_gw_test_ddb_usageplan" {
   tags         = {}
   tags_all     = {}
   api_stages {
-    api_id = "inkjvqc8s8"
+    api_id = var.api_gw_dev_id
     stage  = "dev"
+  }
+  api_stages {
+    api_id = var.api_gw_dev_id
+    stage  = "local"
   }
   quota_settings {
     limit  = 1000
@@ -18,8 +22,8 @@ resource "aws_api_gateway_usage_plan" "api_gw_test_ddb_usageplan" {
     period = "DAY"
   }
   throttle_settings {
-    burst_limit = 5
-    rate_limit  = 5
+    burst_limit = 10
+    rate_limit  = 50
   }
 }
 
@@ -46,9 +50,9 @@ resource "aws_api_gateway_rest_api" "api_gw_dev" {
 
 # __generated__ by Terraform from "xycuoe/snospw72gk"
 resource "aws_api_gateway_usage_plan_key" "api_gw_test_ddb_usageplan_key" {
-  key_id        = "snospw72gk"
+  key_id        = var.api_gw_usage_plan_key_dev
   key_type      = "API_KEY"
-  usage_plan_id = "xycuoe"
+  usage_plan_id = var.api_gw_usage_plan_id_dev
 }
 
 

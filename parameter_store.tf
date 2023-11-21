@@ -1,7 +1,7 @@
 resource "aws_ssm_parameter" "cf_distr_id_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["CF_DISTR_ID"].name}"
   type  = var.js30_parameters_template["CF_DISTR_ID"].type
-  value = var.cloudfront_distro_id_pod
+  value = var.js30_parameters_template["CF_DISTR_ID"].value
 }
 
 resource "aws_ssm_parameter" "env_dev" {
