@@ -19,7 +19,7 @@ resource "aws_ssm_parameter" "full_domain_dev" {
 resource "aws_ssm_parameter" "api_gw_url_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["API_GW_URL"].name}"
   type  = var.js30_parameters_template["API_GW_URL"].type
-  value = replace(local.api_gw_url_dev, "{basePath}", "dev")
+  value = replace(local.api_gw_url_dev, "/{basePath}", "")
 }
 
 resource "aws_ssm_parameter" "auth_header_dev" {
