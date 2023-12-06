@@ -2,7 +2,8 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "5.5.0"
+      version = "5.29.0"
+
     }
 
   }
@@ -92,4 +93,13 @@ import {
 import {
   to = aws_codebuild_project.codedbuild_dev
   id = "js30-build"
+}
+
+import {
+  to = aws_cognito_user_pool.pool
+  id = var.cognito_user_pool_id_localdev
+}
+import {
+  to = aws_cognito_user_pool_client.client
+  id = "${var.cognito_user_pool_id_localdev}/${var.cognito_user_pool_client_id_localdev}"
 }
