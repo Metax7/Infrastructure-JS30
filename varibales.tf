@@ -85,6 +85,13 @@ variable "js30_parameters_template" {
       value       = "NONE"
       description = "Identity Provider Url"
     },
+    IDP_CLIENT_ID = {
+      name        = "IDP_CLIENT_ID"
+      type        = "String"
+      value       = "NONE"
+      description = "Authorizer Client ID"
+    },
+
     AUTHORIZER_URL = {
       name        = "AUTHORIZER_URL"
       type        = "String"
@@ -188,4 +195,11 @@ variable "edge_optimized_api_domain_prefix" {
 variable "metax7_full_domain" {
   type    = string
   default = "metax7.my-best-code.com"
+}
+
+variable "cognito_user_pool_id_localdev" {
+  type = string
+}
+variable "cognito_user_pool_client_id_localdev" {
+  type = string
 }

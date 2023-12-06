@@ -54,10 +54,15 @@ resource "aws_ssm_parameter" "idp_url_dev" {
   value = var.js30_parameters_template["IDP_URL"].value
 }
 
-resource "aws_ssm_parameter" "auth_url_dev" {
-  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["AUTHORIZER_URL"].name}"
-  type  = var.js30_parameters_template["AUTHORIZER_URL"].type
-  value = var.js30_parameters_template["AUTHORIZER_URL"].value
+resource "aws_ssm_parameter" "idp_client_id_dev" {
+  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["IDP_CLIENT_ID"].name}"
+  type  = var.js30_parameters_template["IDP_CLIENT_ID"].type
+  value = aws_cognito_user_pool_client.client.id
 }
 
 
+resource "aws_ssm_parameter" "auth_url_dev" {
+  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["AUTHORIZER_URL"].name}"
+  type  = var.js30_parameters_template["AUTHORIZER_URL"].type
+  value = aws_cognito_user_pool.pool.domain
+}
