@@ -1,39 +1,54 @@
-import { SES, SendEmailCommand } from "@aws-sdk/client-ses";
-const ses = new SES();
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { PutCommand, DynamoDBDocumentClient, } from "@aws-sdk/lib-dynamodb";
 
-const handler = async (event) => {
-  if (event.request.userAttributes.email) {
-    await sendTheEmail(
-      event.request.userAttributes.email,
-      `Congratulations ${event.userName}, you have been confirmed.`
-    );
-  }
-  return event;
+
+// AWS Lambda function for storing liked items in DynamoDB
+// Triggered by some event (e.g., PostConfirmation_ConfirmSignUp)
+
+/**
+ * Lambda function handler.
+ *
+ * @param {Object} event - The event object triggering the Lambda function.
+ * @returns {Object} - The modified event object or an error message.
+ */
+
+const client = new DynamoDBClient();
+const docClient = DynamoDBDocumentClient.from(client);
+
+const TableName = 'USERS_LIKED_ITEMS_DEV';
+
+export const handler = async (event) => {
+
+    try {
+        if (event.userName !== undefined) {
+            const userId = event.userName.toString();
+            const appName = 'JS30';
+// The most important reminder on using DynamoDBDocumentClient is that it marshalls JS types to 
+// those of DynamoDB, which is why we mustn't use "NS, SS" etc in anyway. Check the documentation
+// of the lib to see the mapping.
+            const likedItems = new Set([0])
+            const command = new PutCommand({
+                TableName,
+                Item: {
+                    'UserId': userId ,
+                    'AppName': appName ,
+                    'LikedItems': likedItems
+                }
+            });
+
+            await docClient.send(command);
+
+            console.log(`Item created successfully in ${TableName}.`);
+            return event;
+        } else {
+            console.error('Error: userName is missing in the event.');
+        }
+    } catch (error) {
+        console.error('Error in DynamoDB operation:', error.message);
+        throw error;
+    }
 };
 
-const sendTheEmail = async (to, body) => {
-  const eParams = {
-    Destination: {
-      ToAddresses: [to],
-    },
-    Message: {
-      Body: {
-        Text: {
-          Data: body,
-        },
-      },
-      Subject: {
-        Data: "Cognito Identity Provider registration completed",
-      },
-    },
-    // Replace source_email with your SES validated email address
-    Source: "<source_email>",
-  };
-  try {
-    await ses.send(new SendEmailCommand(eParams));
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-export { handler };
+// https://github.com/aws/aws-sdk-js-v3/tree/main/lib/lib-dynamodb
+// https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#
+// https://dynobase.dev/
