@@ -66,3 +66,26 @@ resource "aws_ssm_parameter" "auth_url_dev" {
   type  = var.js30_parameters_template["AUTHORIZER_URL"].type
   value = aws_cognito_user_pool.user_pool_dev.domain
 }
+resource "aws_ssm_parameter" "google_scope_dev" {
+  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_SCOPE"].name}"
+  type  = var.js30_parameters_template["GOOGLE_SCOPE"].type
+  value = var.js30_parameters_template["GOOGLE_SCOPE"].value
+}
+resource "aws_ssm_parameter" "google_client_id_dev" {
+  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_CLIENT_ID"].name}"
+  type  = var.js30_parameters_template["GOOGLE_CLIENT_ID"].type
+  value = var.google_client_id_dev
+}
+
+resource "aws_ssm_parameter" "google_client_secret_dev" {
+  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_CLIENT_SECRET"].name}"
+  type  = var.js30_parameters_template["GOOGLE_CLIENT_SECRET"].type
+  value = var.google_client_secret_dev
+}
+
+
+resource "aws_ssm_parameter" "init_refresh_token_cipher_key_dev" {
+  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].name}"
+  type  = var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].type
+  value = var.init_refresh_token_cipher_key_dev
+}
