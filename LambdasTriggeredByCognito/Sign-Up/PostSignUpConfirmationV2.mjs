@@ -2,7 +2,49 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, DynamoDBDocumentClient, } from "@aws-sdk/lib-dynamodb";
 import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { randomBytes, createCipheriv } from 'crypto';
+import axios from 'axios';
 
+
+const client = new DynamoDBClient();
+const docClient = DynamoDBDocumentClient.from(client);
+const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
+const TableName = 'USERS_LIKED_ITEMS_DEV';
+const CIPHER_KEY_PATH = "sandbox/metax7/js30/dev/JS30_INIT_REFRESH_TOKEN_CIPHER_KEY";
+const ENCODING_SCHEME = 'base64';
+const INIT_VECTOR_SIZE = 16;  // 128 bits
+const WITH_DECRYPTION = true;
+const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
+
+const retrieveCipherKey = async () => {
+    try {
+        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters/get?name=${CIPHER_KEY_PATH}&withDecryption=${WITH_DECRYPTION.toString()}`, {
+            headers: {
+                'X-Aws-Parameters-Secrets-Token': AWS_SESSION_TOKEN
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error retrieving cipher key:', error.message);
+        throw error;
+    }
+};
+
+const encrypt = async (text) => {
+    const algorithm = 'aes-256-cbc';
+    const key = Buffer.from(await retrieveCipherKey(), ENCODING_SCHEME);
+    const iv = randomBytes(INIT_VECTOR_SIZE);
+    const cipher = createCipheriv(algorithm, key, iv);
+    let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
+    encrypted += cipher.final(ENCODING_SCHEME);
+    const encryptedTextWithIV = iv.toString(ENCODING_SCHEME) + encrypted;
+
+    console.log("Encryption succeeded! Encryption Key:", key.toString(ENCODING_SCHEME));
+
+    return {
+        encryptedTextWithIV
+    };
+};
 
 // AWS Lambda function for adding a new user with a set of 1 elemnent - zero to DynamoDB
 // Triggered by some event (e.g., PostConfirmation_ConfirmSignUp)
@@ -14,44 +56,17 @@ import { randomBytes, createCipheriv } from 'crypto';
  * @returns {Object} - The modified event object or an error message.
  */
 
-const client = new DynamoDBClient();
-const docClient = DynamoDBDocumentClient.from(client);
-const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
-const TableName = 'USERS_LIKED_ITEMS_DEV';
-
-const encrypt = (text) => {
-    const algorithm = 'aes-256-cbc';
-    let key = randomBytes(32); // 256 bits
-    const iv = randomBytes(16); // 128 bits
-    const cipher = createCipheriv(algorithm, key, iv);
-    let encrypted = cipher.update(text, 'utf-8', 'base64');
-    encrypted += cipher.final('base64');
-    const encryptedTextWithIV = iv.toString('base64') + encrypted;
-    key = key.toString('base64')
-
-    console.log("Encryption succeeded! Encryption Key:", key);
-
-    return {
-        key: key,
-        encryptedTextWithIV: encryptedTextWithIV
-    };
-};
-
 export const handler = async (event) => {
-
     try {
         if (event.userName !== undefined) {
             const userId = event.userName.toString();
             const appName = 'JS30';
-// The most important reminder on using DynamoDBDocumentClient is that it marshalls JS types to 
-// those of DynamoDB, which is why we mustn't use "NS, SS" etc in anyway. Check the documentation
-// of the lib to see the mapping.
             const likedItems = new Set([0])
             const command = new PutCommand({
                 TableName,
                 Item: {
-                    'UserId': userId ,
-                    'AppName': appName ,
+                    'UserId': userId,
+                    'AppName': appName,
                     'LikedItems': likedItems
                 }
             });
@@ -60,23 +75,21 @@ export const handler = async (event) => {
 
             console.log(`Item created successfully in ${TableName}.`);
 
-
             if ("custom:google_refresh_token" in event.request.userAttributes) {
-                const encryptedData = encrypt(event.request.userAttributes["custom:google_refresh_token"]);
-           
-                const input = { 
-                  UserPoolId: event.userPoolId, 
-                  Username: event.userName,
-                  UserAttributes: [ 
-                    { 
-                      Name: "custom:google_refresh_token", 
-                      Value: encryptedData.encryptedTextWithIV
-                    }]
+                const encryptedData = await encrypt(event.request.userAttributes["custom:google_refresh_token"]);
+
+                const input = {
+                    UserPoolId: event.userPoolId,
+                    Username: event.userName,
+                    UserAttributes: [
+                        {
+                            Name: "custom:google_refresh_token",
+                            Value: encryptedData.encryptedTextWithIV
+                        }
+                    ]
                 };
                 const command = new AdminUpdateUserAttributesCommand(input);
                 await cognitoClient.send(command);
-                // Optionally, store the key and IV for future decryption
-                console.log("Encryption Key:", encryptedData.key);   
             }
             return event;
         } else {
