@@ -103,6 +103,30 @@ variable "js30_parameters_template" {
       type        = "String"
       value       = "max-age=60, s-maxage=86400"
       description = "Cache-Control settings applied one or multiple files in the bucket"
+    },
+    GOOGLE_SCOPE = {
+      name        = "GOOGLE_SCOPE"
+      type        = "String"
+      value       = "aws.cognito.signin.user.admin email openid profile https://www.googleapis.com/auth/photoslibrary.readonly"
+      description = "OAuth2 Scope for Google IdP and it's APIs"
+    },
+    GOOGLE_CLIENT_ID = {
+      name        = "GOOGLE_CLIENT_ID"
+      type        = "SecureString"
+      value       = "NONE"
+      description = "Cognito's client id assigned by Google OAuth2 (Google Client)"
+    },
+    GOOGLE_CLIENT_SECRET = {
+      name        = "GOOGLE_CLIENT_SECRET"
+      type        = "SecureString"
+      value       = "NONE"
+      description = "Cognito's client secret assigned by Google OAuth2 (Google Client Secret)"
+    },
+    INIT_REFRESH_TOKEN_CIPHER_KEY = {
+      name        = "INIT_REFRESH_TOKEN_CIPHER_KEY"
+      type        = "SecureString"
+      value       = "NONE"
+      description = "Base64 encoded initial client secret to be regenerated and afterwards stored in SecretsManager"
     }
   }
 }
@@ -138,7 +162,12 @@ variable "application_env_vars" {
     "APP_NAME",
     "IDP_URL",
     "AUTHORIZER_URL",
-  "CACHE_CONTROL"]
+    "CACHE_CONTROL",
+    "GOOGLE_SCOPE",
+    "GOOGLE_CLIENT_ID",
+    "GOOGLE_CLIENT_SECRET",
+    "INIT_REFRESH_TOKEN_CIPHER_KEY"
+  ]
   description = "environment variables used for application deployment and required infrastructure"
 }
 variable "api_gw_name_dev" {
@@ -202,4 +231,20 @@ variable "cognito_user_pool_id_localdev" {
 }
 variable "cognito_user_pool_client_id_localdev" {
   type = string
+}
+
+variable "google_client_id_dev" {
+  type      = string
+  sensitive = true
+  default   = "NONE"
+}
+variable "google_client_secret_dev" {
+  type      = string
+  sensitive = true
+  default   = "NONE"
+}
+variable "init_refresh_token_cipher_key_dev" {
+  type      = string
+  sensitive = true
+  default   = "NONE"
 }
