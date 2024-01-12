@@ -1,7 +1,8 @@
 import { randomBytes, createCipheriv } from 'crypto';
+import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 
 console.log("Pre SignUp Lambda has been triggered by Cognito User Pool");
-
+const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
 const encrypt = (text) => {
     const algorithm = 'aes-256-cbc';
     const key = randomBytes(32); // 256 bits
@@ -38,8 +39,18 @@ const handler = async (event, context) => {
         if ("custom:google_refresh_token" in event.request.userAttributes) {
 
             const encryptedData = encrypt(event.request.userAttributes["custom:google_refresh_token"]);
-            event.request.userAttributes["custom:google_refresh_token"] = encryptedData.encryptedText;
-
+           
+            const input = { 
+              UserPoolId: event.userPoolId, // required
+              Username: event.userName, // required
+              UserAttributes: [ // AttributeListType // required
+                { // AttributeType
+                  Name: "custom:google_refresh_token", // required
+                  Value: encryptedData.encryptedTextWithIV
+                }]
+            };
+            const command = new AdminUpdateUserAttributesCommand(input);
+            await cognitoClient.send(command);
             // Optionally, store the key and IV for future decryption
             console.log("Encryption Key:", encryptedData.key);
         }
