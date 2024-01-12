@@ -96,10 +96,15 @@ import {
 }
 
 import {
-  to = aws_cognito_user_pool.pool
+  to = aws_cognito_user_pool.user_pool_dev
   id = var.cognito_user_pool_id_localdev
 }
 import {
-  to = aws_cognito_user_pool_client.client
+  to = aws_cognito_user_pool_client.user_pool_client_dev
   id = "${var.cognito_user_pool_id_localdev}/${var.cognito_user_pool_client_id_localdev}"
+}
+
+import {
+  to = aws_lambda_function.postSignUpConfirmationV2
+  id = "PostSignUpConfirmationV2"
 }
