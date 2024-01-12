@@ -126,7 +126,7 @@ variable "js30_parameters_template" {
       name        = "INIT_REFRESH_TOKEN_CIPHER_KEY"
       type        = "SecureString"
       value       = "NONE"
-      description = "Base64 encoded initial client secret to be regenerated and afterwards stored in SecretsManager"
+      description = "OLNY FOR DEV PURPOSES: Base64 encoded initial client secret to be regenerated and afterwards stored in SecretsManager"
     }
   }
 }
