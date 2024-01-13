@@ -5,7 +5,7 @@
 resource "aws_lambda_function" "postSignUpConfirmationV2" {
   architectures                  = ["x86_64"]
   description                    = "Cognito Post Confirmation Trigger. Adds a new user with a set of 0 liked items to DynamoDB"
-  filename                       = local.filename
+  filename                       = "${path.module}/${local.trigger_dir_name}/Sign-Up/${local.filename}"
   function_name                  = local.function_name
   handler                        = "${local.function_name}.handler"
   kms_key_arn                    = null
@@ -34,22 +34,24 @@ resource "aws_lambda_function" "postSignUpConfirmationV2" {
 }
 
 resource "aws_lambda_layer_version" "nodejs_layer_dev" {
-  filename                 = "${local.layer_filename}.zip"
+  filename                 = "${path.module}/${local.trigger_dir_name}/${local.layer_filename}.zip"
   layer_name               = "nodejs_layer_dev"
   compatible_architectures = ["x86_64"]
   compatible_runtimes      = ["nodejs20.x"]
   source_code_hash         = data.archive_file.cognitoLambdaLayer.output_base64sha256
+  skip_destroy             = true // this should make aws increment layer version instead of replacing. Additional charges may occure!
 
 }
 
 resource "null_resource" "build_cognitolayer" {
-  triggers = {
-    build_number = "${timestamp()}"
-  }
+  # triggers = {
+  #   build_number = "${timestamp()}"
+  # }
   provisioner "local-exec" {
-    command     = "sh '${path.module}'/'${local.trigger_dir_name}'/buildlayer.sh "
+    command     = "sh buildlayer.sh"
     working_dir = "${path.module}/${local.trigger_dir_name}"
-    
+
+  }
 }
 
 data "archive_file" "cognitoLambdaLayer" {
@@ -68,6 +70,6 @@ data "archive_file" "postSignUpConfirmationLambda" {
 locals {
   filename         = "PostSignUpConfirmationV2_payload.zip"
   function_name    = "PostSignUpConfirmationV2"
-  layer_filename   = "cogntio_nodejs_layer"
+  layer_filename   = "cognito_nodejs_layer"
   trigger_dir_name = "LambdasTriggeredByCognito"
 }

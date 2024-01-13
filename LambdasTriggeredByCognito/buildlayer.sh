@@ -1,5 +1,5 @@
 #!/bin/bash
-LAYER_NAME=cognito_node_js_layer
+LAYER_NAME=cognito_nodejs_layer
 
 set -eo pipefail
 if [ ! -f package.json ]; then

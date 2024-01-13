@@ -1,21 +1,20 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, DynamoDBDocumentClient, } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { randomBytes, createCipheriv } from 'crypto';
 import axios from 'axios';
-
 
 const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
 const TableName = 'USERS_LIKED_ITEMS_DEV';
-const CIPHER_KEY_PATH = "sandbox/metax7/js30/dev/JS30_INIT_REFRESH_TOKEN_CIPHER_KEY";
+const CIPHER_KEY_PATH = "/sandbox/metax7/js30/dev/JS30_INIT_REFRESH_TOKEN_CIPHER_KEY";
 const ENCODING_SCHEME = 'base64';
 const INIT_VECTOR_SIZE = 16;  // 128 bits
 const WITH_DECRYPTION = true;
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
 
-const retrieveCipherKey = async () => {
+const retrieveSecuredParameter = async () => {
     try {
         const response = await axios.get(`http://localhost:2773/systemsmanager/parameters/get?name=${CIPHER_KEY_PATH}&withDecryption=${WITH_DECRYPTION.toString()}`, {
             headers: {
@@ -25,25 +24,53 @@ const retrieveCipherKey = async () => {
 
         return response.data;
     } catch (error) {
-        console.error('Error retrieving cipher key:', error.message);
-        throw error;
+        handleAxiosError(error);
     }
 };
 
 const encrypt = async (text) => {
     const algorithm = 'aes-256-cbc';
-    const key = Buffer.from(await retrieveCipherKey(), ENCODING_SCHEME);
-    const iv = randomBytes(INIT_VECTOR_SIZE);
-    const cipher = createCipheriv(algorithm, key, iv);
-    let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
-    encrypted += cipher.final(ENCODING_SCHEME);
-    const encryptedTextWithIV = iv.toString(ENCODING_SCHEME) + encrypted;
+    try {
+        const securedParameter = await retrieveSecuredParameter();
+        if ('Value' in securedParameter.Parameter) {
+            const cipherKey = securedParameter.Parameter.Value;
+            console.log("Cipher key :", cipherKey)
+            const key = Buffer.from(cipherKey, ENCODING_SCHEME);
+            const iv = randomBytes(INIT_VECTOR_SIZE);
+            const cipher = createCipheriv(algorithm, key, iv);
+            let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
+            encrypted += cipher.final(ENCODING_SCHEME);
+            const encryptedTextWithIV = iv.toString(ENCODING_SCHEME) + encrypted;
+    
+            console.log("Encryption succeeded! Encryption Key:", key.toString(ENCODING_SCHEME));
+    
+            return encryptedTextWithIV;
+            
+        }
 
-    console.log("Encryption succeeded! Encryption Key:", key.toString(ENCODING_SCHEME));
+    } catch (error) {
+        handleGenericError(error);
+    }
+};
 
-    return {
-        encryptedTextWithIV
-    };
+const handleAxiosError = (error) => {
+    console.error('Axios Error:', error.message);
+    throw error;
+};
+
+const handleDynamoDBError = (error) => {
+    console.error('DynamoDB Error:', error.message);
+    throw error;
+};
+
+const handleCognitoError = (error) => {
+    console.error('Cognito Identity Provider Error:', error.message);
+    throw error;
+};
+
+const handleGenericError = (error) => {
+    console.error('Unexpected Error:', error.message);
+    throw error;
 };
 
 // AWS Lambda function for adding a new user with a set of 1 elemnent - zero to DynamoDB
@@ -76,7 +103,7 @@ export const handler = async (event) => {
             console.log(`Item created successfully in ${TableName}.`);
 
             if ("custom:google_refresh_token" in event.request.userAttributes) {
-                const encryptedData = await encrypt(event.request.userAttributes["custom:google_refresh_token"]);
+                const encryptedTextWithIV = await encrypt(event.request.userAttributes["custom:google_refresh_token"]);
 
                 const input = {
                     UserPoolId: event.userPoolId,
@@ -84,7 +111,7 @@ export const handler = async (event) => {
                     UserAttributes: [
                         {
                             Name: "custom:google_refresh_token",
-                            Value: encryptedData.encryptedTextWithIV
+                            Value: encryptedTextWithIV
                         }
                     ]
                 };
@@ -96,7 +123,12 @@ export const handler = async (event) => {
             console.error('Error: userName is missing in the event.');
         }
     } catch (error) {
-        console.error('Error in DynamoDB operation:', error.message);
-        throw error;
+        if (error.name === 'DynamoDBError') {
+            handleDynamoDBError(error);
+        } else if (error.name === 'CognitoError') {
+            handleCognitoError(error);
+        } else {
+            handleGenericError(error);
+        }
     }
 };
