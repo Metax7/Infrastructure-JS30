@@ -8,7 +8,8 @@ const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
 const TableName = 'USERS_LIKED_ITEMS_DEV';
-const CIPHER_KEY_PATH = "/sandbox/metax7/js30/dev/JS30_INIT_REFRESH_TOKEN_CIPHER_KEY";
+const CIPHER_KEY_FULLNAME = "sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
+const CURRENT = "_CURRENT"
 const ENCODING_SCHEME = 'base64';
 const INIT_VECTOR_SIZE = 16;  // 128 bits
 const WITH_DECRYPTION = true;
@@ -16,7 +17,7 @@ const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
 
 const retrieveSecuredParameter = async () => {
     try {
-        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters/get?name=${CIPHER_KEY_PATH}&withDecryption=${WITH_DECRYPTION.toString()}`, {
+        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters/get?name=/${CIPHER_KEY_FULLNAME}${CURRENT}&withDecryption=${WITH_DECRYPTION.toString()}`, {
             headers: {
                 'X-Aws-Parameters-Secrets-Token': AWS_SESSION_TOKEN
             }
@@ -34,15 +35,14 @@ const encrypt = async (text) => {
         const securedParameter = await retrieveSecuredParameter();
         if ('Value' in securedParameter.Parameter) {
             const cipherKey = securedParameter.Parameter.Value;
-            console.log("Cipher key :", cipherKey)
             const key = Buffer.from(cipherKey, ENCODING_SCHEME);
             const iv = randomBytes(INIT_VECTOR_SIZE);
             const cipher = createCipheriv(algorithm, key, iv);
             let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
             encrypted += cipher.final(ENCODING_SCHEME);
-            const encryptedTextWithIV = iv.toString(ENCODING_SCHEME) + encrypted;
+            const encryptedTextWithIV = iv.toString(ENCODING_SCHEME)  + encrypted;
     
-            console.log("Encryption succeeded! Encryption Key:", key.toString(ENCODING_SCHEME));
+            console.log("Encryption succeeded!");
     
             return encryptedTextWithIV;
             

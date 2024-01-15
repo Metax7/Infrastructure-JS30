@@ -7,7 +7,8 @@ const encrypt = (text) => {
     const algorithm = 'aes-256-cbc';
     const key = randomBytes(32); // 256 bits
     const iv = randomBytes(16); // 128 bits
-
+    const keyk = key.toString('base64')
+    console.log("KKKK: ", keyk)
     const cipher = createCipheriv(algorithm, key, iv);
     console.log("cipher :", cipher)
     let encrypted = cipher.update(text, 'utf-8', 'base64');
