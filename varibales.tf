@@ -1,6 +1,6 @@
 variable "aws_profile" {
   type        = string
-  sensitive   = true
+  sensitive   = false
   default     = "metax-sandbox-adm"
   description = "AWS Access Credentials"
 }

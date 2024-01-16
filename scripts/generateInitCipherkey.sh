@@ -10,7 +10,7 @@ set -e
 eval "$(jq -r '@sh "SIZE=\(.size) SCHEME=\(.encode)"')"
 
 # Placeholder for whatever data-fetching logic your script implements
-CIPHERKEY=(openssl rand -${SCHEME} ${SIZE})
+CIPHERKEY=$(openssl rand -"${SCHEME}" "${SIZE}")
 
 # Safely produce a JSON object containing the result value.
 # jq will ensure that the value is properly quoted
