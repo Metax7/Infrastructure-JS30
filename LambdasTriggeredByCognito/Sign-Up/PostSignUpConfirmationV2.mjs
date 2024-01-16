@@ -8,70 +8,12 @@ const client = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(client);
 const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
 const TableName = 'USERS_LIKED_ITEMS_DEV';
-const CIPHER_KEY_FULLNAME = "sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
-const CURRENT = "_CURRENT"
+const CIPHER_KEY_FULLNAME = "/sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
 const ENCODING_SCHEME = 'base64';
 const INIT_VECTOR_SIZE = 16;  // 128 bits
 const WITH_DECRYPTION = true;
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
 
-const retrieveSecuredParameter = async () => {
-    try {
-        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters/get?name=/${CIPHER_KEY_FULLNAME}${CURRENT}&withDecryption=${WITH_DECRYPTION.toString()}`, {
-            headers: {
-                'X-Aws-Parameters-Secrets-Token': AWS_SESSION_TOKEN
-            }
-        });
-
-        return response.data;
-    } catch (error) {
-        handleAxiosError(error);
-    }
-};
-
-const encrypt = async (text) => {
-    const algorithm = 'aes-256-cbc';
-    try {
-        const securedParameter = await retrieveSecuredParameter();
-        if ('Value' in securedParameter.Parameter) {
-            const cipherKey = securedParameter.Parameter.Value;
-            const key = Buffer.from(cipherKey, ENCODING_SCHEME);
-            const iv = randomBytes(INIT_VECTOR_SIZE);
-            const cipher = createCipheriv(algorithm, key, iv);
-            let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
-            encrypted += cipher.final(ENCODING_SCHEME);
-            const encryptedTextWithIV = iv.toString(ENCODING_SCHEME)  + encrypted;
-    
-            console.log("Encryption succeeded!");
-    
-            return encryptedTextWithIV;
-            
-        }
-
-    } catch (error) {
-        handleGenericError(error);
-    }
-};
-
-const handleAxiosError = (error) => {
-    console.error('Axios Error:', error.message);
-    throw error;
-};
-
-const handleDynamoDBError = (error) => {
-    console.error('DynamoDB Error:', error.message);
-    throw error;
-};
-
-const handleCognitoError = (error) => {
-    console.error('Cognito Identity Provider Error:', error.message);
-    throw error;
-};
-
-const handleGenericError = (error) => {
-    console.error('Unexpected Error:', error.message);
-    throw error;
-};
 
 // AWS Lambda function for adding a new user with a set of 1 elemnent - zero to DynamoDB
 // Triggered by some event (e.g., PostConfirmation_ConfirmSignUp)
@@ -132,3 +74,64 @@ export const handler = async (event) => {
         }
     }
 };
+
+const retrieveSecuredParameter = async () => {
+    try {
+        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters/get?name=${CIPHER_KEY_FULLNAME}&withDecryption=${WITH_DECRYPTION.toString()}`, {
+            headers: {
+                'X-Aws-Parameters-Secrets-Token': AWS_SESSION_TOKEN
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        handleAxiosError(error);
+    }
+};
+
+const encrypt = async (text) => {
+    const algorithm = 'aes-256-cbc';
+    try {
+        const securedParameter = await retrieveSecuredParameter();
+        if ('Value' in securedParameter.Parameter && 'Version' in securedParameter.Parameter) {
+            const cipherKey = securedParameter.Parameter.Value;
+            const keyVersion = securedParameter.Parameter.Version;
+            const keyVersionEncoded = Buffer.from(keyVersion).toString(ENCODING_SCHEME);
+            const key = Buffer.from(cipherKey, ENCODING_SCHEME);
+            const iv = randomBytes(INIT_VECTOR_SIZE);
+            const cipher = createCipheriv(algorithm, key, iv);
+            let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
+            encrypted += cipher.final(ENCODING_SCHEME);
+            const encryptedTextWithIV = keyVersionEncoded + iv.toString(ENCODING_SCHEME) + encrypted;
+    
+            console.log("Encryption succeeded! Key version: ", keyVersion);
+    
+            return encryptedTextWithIV;
+            
+        }
+
+    } catch (error) {
+        handleGenericError(error);
+    }
+};
+
+const handleAxiosError = (error) => {
+    console.error('Axios Error:', error.message);
+    throw error;
+};
+
+const handleDynamoDBError = (error) => {
+    console.error('DynamoDB Error:', error.message);
+    throw error;
+};
+
+const handleCognitoError = (error) => {
+    console.error('Cognito Identity Provider Error:', error.message);
+    throw error;
+};
+
+const handleGenericError = (error) => {
+    console.error('Unexpected Error:', error.message);
+    throw error;
+};
+

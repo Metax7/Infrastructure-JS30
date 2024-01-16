@@ -84,7 +84,7 @@ resource "aws_ssm_parameter" "google_client_secret_dev" {
 }
 
 
-resource "aws_ssm_parameter" "init_refresh_token_cipher_key_current_dev" {
+resource "aws_ssm_parameter" "init_refresh_token_cipher_key_dev" {
   name  = local.rtckc_name
   type  = var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].type
   value = "INIT_VAL" // can be anything since its replace by provisioner
@@ -96,33 +96,33 @@ resource "aws_ssm_parameter" "init_refresh_token_cipher_key_current_dev" {
 
   provisioner "local-exec" {
     command = templatefile("${var.scripts_dir}/update-ssm-expiration-policy.sh.tpl", {
-      NAME = local.rtckc_name,
-      VALUE = local.rtckc_initval,
+      NAME     = local.rtckc_name,
+      VALUE    = local.rtckc_initval,
       POLICIES = local.rtckc_policy,
-      PROFILE = var.aws_profile
+      PROFILE  = var.aws_profile
     })
 
-          on_failure  = fail
-         interpreter = ["bash", "-c"]
+    on_failure  = fail
+    interpreter = ["bash", "-c"]
   }
-# The provisoners down below didn't work as policy array couldn't be mapped properly to a var in bash script. Revision needed.
-#    provisioner "local-exec" {
-#      command     = "sh ${var.scripts_dir}/update-ssm-expiration-policy.sh -n ${local.rtckc_name} -v ${local.rtckc_initval} -a ${var.aws_profile} -p ${jsonencode(local.rtckc_policy)} "
-#      on_failure  = fail
-#     interpreter = ["bash", "-c"]
-#    }
+  # The provisoners down below didn't work as policy array couldn't be mapped properly to a var in bash script. Revision needed.
+  #    provisioner "local-exec" {
+  #      command     = "sh ${var.scripts_dir}/update-ssm-expiration-policy.sh -n ${local.rtckc_name} -v ${local.rtckc_initval} -a ${var.aws_profile} -p ${jsonencode(local.rtckc_policy)} "
+  #      on_failure  = fail
+  #     interpreter = ["bash", "-c"]
+  #    }
 
-#  provisioner "local-exec" {
-#    command     = <<-EOF
-#    sh ${var.scripts_dir}/update-ssm-expiration-policy.sh \
-#      -n "${local.rtckc_name}" \
-#      -v "${local.rtckc_initval}" \
-#      -a "${var.aws_profile}" \
-#      -p ${local.rtckc_policy}
-#  EOF
-#    interpreter = ["bash", "-c"]
-#    on_failure  = fail
-#  }
+  #  provisioner "local-exec" {
+  #    command     = <<-EOF
+  #    sh ${var.scripts_dir}/update-ssm-expiration-policy.sh \
+  #      -n "${local.rtckc_name}" \
+  #      -v "${local.rtckc_initval}" \
+  #      -a "${var.aws_profile}" \
+  #      -p ${local.rtckc_policy}
+  #  EOF
+  #    interpreter = ["bash", "-c"]
+  #    on_failure  = fail
+  #  }
 
 
 }
@@ -141,7 +141,7 @@ locals {
   rtckc_name = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].name}"
   //rtckc_expiration_time = timeadd(timestamp(), "24h")
   rtckc_initval = data.external.init_cipherkey_dev.result.cipherkey
-  rtckc_policy  = jsonencode(templatefile("${var.templates_dir}/ssm_param_NoChangeNotification_policy.tftpl", { AFTER = 2, UNITS = "Hours" }))
+  rtckc_policy  = jsonencode(templatefile("${var.templates_dir}/ssm_param_NoChangeNotification_policy.tftpl", { AFTER = 10, UNITS = "Hours" }))
 }
 
 

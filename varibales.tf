@@ -123,7 +123,7 @@ variable "js30_parameters_template" {
       description = "Cognito's client secret assigned by Google OAuth2 (Google Client Secret)"
     },
     INIT_REFRESH_TOKEN_CIPHER_KEY = {
-      name        = "REFRESH_TOKEN_CIPHER_KEY_CURRENT"
+      name        = "REFRESH_TOKEN_CIPHER_KEY"
       type        = "SecureString"
       value       = "NONE"
       description = "OLNY FOR DEV PURPOSES: Base64 encoded initial client secret to be regenerated and afterwards stored in SecretsManager"
@@ -166,7 +166,7 @@ variable "application_env_vars" {
     "GOOGLE_SCOPE",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "REFRESH_TOKEN_CIPHER_KEY_CURRENT"
+    "REFRESH_TOKEN_CIPHER_KEY"
   ]
   description = "environment variables used for application deployment and required infrastructure"
 }

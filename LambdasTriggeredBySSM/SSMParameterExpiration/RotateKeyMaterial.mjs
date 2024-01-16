@@ -1,82 +1,41 @@
 import { randomBytes } from 'crypto';
-import axios from 'axios';
 import { SSMClient, PutParameterCommand } from "@aws-sdk/client-ssm";
 
 const ENCODING_SCHEME = 'base64';
 const KEY_SIZE = 32; // 256 bits
-const WITH_DECRYPTION = true;
-const CIPHER_KEY_FULLNAME = "sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
-const CURRENT = "_CURRENT";
-const ssmClient = new SSMClient({ region: "us-west-1" });
+const CIPHER_KEY_FULLNAME = "/sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
+const REGION = "us-west-1"
+const ssmClient = new SSMClient({ region: REGION });
+
 
 /**
  * Lambda function handler for key rotation.
  *
  * @param {Object} event - The event object triggering the Lambda function.
  * @param {Object} context - The context object containing information about the execution environment.
+ *
  */
 export const handler = async (event, context) => {
-    // 1. Retrieve expired and new cipher keys concurrently
-    const [
-        expiredCipherkeyResult,
-        newKeyMaterial
-    ] = await Promise.all([
-        getExpiredCipherkey(),
-        generateCipherkey()
-    ]);
 
+    if(!isValid(event)){
+        console.error("Event not processed.")
+        return context.logStreamName
+    }
+    const newKey = generateCipherkey();
     // 2. Update current cipher key
-    updateCurrentCipherkey(newKeyMaterial);
-
-    // 3. Save expired cipher key with its version
-    saveExpiredCipherkey(expiredCipherkeyResult.expiredKey, expiredCipherkeyResult.expiredVersion, context);
+    try {
+        const response = await updateCurrentCipherkey(newKey);
+        // console.log("ENVIRONMENT VARIABLES\n" + JSON.stringify(process.env, null, 2))
+        console.info("EVENT PROCESSED\n" + JSON.stringify(event, null, 2))
+        // return context.logStreamName
+        return response;
+    }
+    catch (error){
+        console.error("Event not processed: ", error)
+        throw error;
+    }
 };
 
-/**
- * Save expired cipher key with its version as a part of its name.
- *
- * @param {string} expiredKey - The expired cipher key.
- * @param {string} expiredVersion - The version of the expired cipher key.
- * @param {Object} context - The context object containing information about the execution environment.
- */
-const saveExpiredCipherkey = async (expiredKey, expiredVersion, context) => {
-    const paramName = CIPHER_KEY_FULLNAME + `_${expiredVersion}`;
-    const currentDate = new Date();
-    const futureDate = new Date(currentDate);
-    futureDate.setFullYear(currentDate.getFullYear() + 5);
-    const expiresAt = futureDate.toISOString().split('.')[0] + 'Z';
-
-    const policies = [{
-        "Type": "Expiration",
-        "Version": "1.0",
-        "Attributes": {
-            "Timestamp": expiresAt
-        }
-    }];
-
-    const input = {
-        Name: paramName,
-        Description: "Expired Cipherkey to execute encrypt/decrypt operations in DEV environment",
-        Value: expiredKey,
-        Type: "SecureString",
-        Overwrite: false,
-        Tags: [
-            {
-                Key: "CreatedBy",
-                Value: `${context.functionName}:${context.functionVersion}`,
-            },
-            {
-                Key: "InvokedBy",
-                Value: `${context.invokedFunctionArn}`,
-            },
-        ],
-        Tier: "Standard",
-        Policies: policies,
-    };
-
-    const command = new PutParameterCommand(input);
-    await ssmClient.send(command);
-};
 
 /**
  * Update the current cipher key.
@@ -84,67 +43,69 @@ const saveExpiredCipherkey = async (expiredKey, expiredVersion, context) => {
  * @param {string} newKey - The new cipher key material.
  */
 const updateCurrentCipherkey = async (newKey) => {
-    const paramName = `${CIPHER_KEY_FULLNAME}${CURRENT}`;
+
     const input = {
-        Name: paramName,
+        Name: CIPHER_KEY_FULLNAME,
         Value: newKey,
         Overwrite: true,
     };
-
     const command = new PutParameterCommand(input);
-    await ssmClient.send(command);
-};
 
-/**
- * Retrieve expired parameter with decryption.
- *
- * @returns {Promise<{ expiredVersion: string, expiredKey: string }>} - A Promise that resolves to an object containing the expired version and key.
- */
-const getExpiredCipherkey = async () => {
     try {
-        const expiredkeyParam = await retrieveSecuredParameter();
-
-        if ('Value' in expiredkeyParam.Parameter && 'Version' in expiredkeyParam.Parameter) {
-            return {
-                expiredVersion: expiredkeyParam.Parameter.Version,
-                expiredKey: expiredkeyParam.Parameter.Value
-            };
-        } else {
-            throw new Error("Key Material or Version is not present.");
-        }
-    } catch (error) {
+        const response =  await ssmClient.send(command);
+        return response.data;
+    }
+    catch (error) {
         handleSSMError(error);
     }
+
 };
 
 /**
  * Generate a new cipher key.
  *
- * @returns {Promise<string>} - A Promise that resolves to the new cipher key material.
+ * @returns {String} - A Promise that resolves to the new cipher key material.
  */
-const generateCipherkey = async () => {
+const generateCipherkey = () => {
     const cipherkey = randomBytes(KEY_SIZE);
     return cipherkey.toString(ENCODING_SCHEME);
 };
 
-/**
- * Retrieve secured parameter from the external service.
- *
- * @returns {Promise<Object>} - A Promise that resolves to the secured parameter object.
- */
-const retrieveSecuredParameter = async () => {
-    try {
-        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters
-        /get?name=/${CIPHER_KEY_FULLNAME}${CURRENT}&withDecryption=${WITH_DECRYPTION.toString()}`, {
-            headers: {
-                'X-Aws-Parameters-Secrets-Token': AWS_SESSION_TOKEN
-            }
-        });
 
-        return response.data;
-    } catch (error) {
-        handleAxiosError(error);
+/**
+ *  {Object} event - {
+ *   "version": "0",
+ *   "id": "6a7e8feb-b491-4cf7-a9f1-bf3703467718",
+ *   "detail-type": "Parameter Store Policy Action",
+ *   "source": "aws.ssm",
+ *   "account": "123456789012",
+ *   "time": "2017-05-22T16:43:48Z",
+ *   "region": "us-east-1",
+ *   "resources": ["arn:aws:ssm:us-east-1:123456789012:parameter/foo"],
+ *   "detail": {
+ *     "policy-type": "NoChangeNotification",
+ *     "parameter-name": "foo",
+ *     "parameter-type": "String",
+ *     "policy-content": "{\"Type\":\"NoChangeNotification\",\"Version\":\"1.0\",\"Attributes\":{\"After\":\"2\",\"Unit\":\"Hours\"}}",
+ *     "action-status": "Success",
+ *     "action-reason": "The parameter has not been changed for 2 hours. This notification was generated based on the policy created at 2018-02-05T20:26:18.795Z"
+ *   }
+ * }
+ * */
+
+/**
+ * Check if the 'resources' property is present and ends with `${CIPHER_KEY_FULLNAME}${CURRENT}`.
+ *
+ * @param {Object} event - The event object.
+ * @returns {boolean} - True if the condition is met, false otherwise.
+ */
+const isValid = (event) => {
+    if (event.resources && Array.isArray(event.resources) && event.resources.length > 0) {
+        const resourceName = event.resources[0];
+        const expectedResourceSuffix = `${CIPHER_KEY_FULLNAME}${CURRENT}`;
+        return resourceName.endsWith(expectedResourceSuffix);
     }
+    return false;
 };
 
 /**
@@ -154,15 +115,5 @@ const retrieveSecuredParameter = async () => {
  */
 const handleSSMError = (error) => {
     console.error("SSM Error: ", error);
-    throw error;
-};
-
-/**
- * Handle Axios errors.
- *
- * @param {Error} error - The Axios error object.
- */
-const handleAxiosError = (error) => {
-    console.error('Axios Error:', error);
     throw error;
 };
