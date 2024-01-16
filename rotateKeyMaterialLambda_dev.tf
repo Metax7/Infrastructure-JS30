@@ -11,7 +11,7 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
   package_type                   = "Zip"
   publish                        = null
   reserved_concurrent_executions = -1
-  role                           = ""
+  role                           = "arn:aws:iam::021427789578:role/service-role/${local.function_name}-role-gl9reck2"
   runtime                        = "nodejs20.x"
   skip_destroy                   = false
   source_code_hash               = data.archive_file.rotate_key_material_dev.output_base64sha256

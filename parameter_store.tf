@@ -1,3 +1,9 @@
+locals {
+  rtckc_name = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].name}"
+  //rtckc_expiration_time = timeadd(timestamp(), "24h")
+  rtckc_policy = templatefile("${var.templates_dir}/ssm_param_NoChangeNotification_policy.tftpl", { AFTER = 2, UNITS = "Hours" })
+}
+
 resource "aws_ssm_parameter" "cf_distr_id_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["CF_DISTR_ID"].name}"
   type  = var.js30_parameters_template["CF_DISTR_ID"].type
@@ -84,8 +90,29 @@ resource "aws_ssm_parameter" "google_client_secret_dev" {
 }
 
 
-resource "aws_ssm_parameter" "init_refresh_token_cipher_key_dev" {
-  name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].name}"
+resource "aws_ssm_parameter" "init_refresh_token_cipher_key_current_dev" {
+  name  = local.rtckc_name
   type  = var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].type
-  value = var.init_refresh_token_cipher_key_dev
+  value = data.external.init_cipherkey_dev.result.cipherkey
+
+  lifecycle {
+    ignore_changes = [value]
+  }
+  provisioner "local-exec" {
+    command    = "sh ${var.scripts_dir}/update-ssm-expiration-policy.sh -n ${local.rtckc_name} -p ${local.rtckc_policy}"
+    on_failure = fail
+  }
 }
+
+data "external" "init_cipherkey_dev" {
+  program = [
+    "bash", "${var.scripts_dir}/generateInitCipherkey.sh",
+  ]
+  query = {
+    size   = 32
+    encode = "base64"
+  }
+}
+
+
+
