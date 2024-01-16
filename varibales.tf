@@ -1,6 +1,6 @@
 variable "aws_profile" {
   type        = string
-  sensitive   = true
+  sensitive   = false
   default     = "metax-sandbox-adm"
   description = "AWS Access Credentials"
 }
@@ -123,7 +123,7 @@ variable "js30_parameters_template" {
       description = "Cognito's client secret assigned by Google OAuth2 (Google Client Secret)"
     },
     INIT_REFRESH_TOKEN_CIPHER_KEY = {
-      name        = "INIT_REFRESH_TOKEN_CIPHER_KEY"
+      name        = "REFRESH_TOKEN_CIPHER_KEY_CURRENT"
       type        = "SecureString"
       value       = "NONE"
       description = "OLNY FOR DEV PURPOSES: Base64 encoded initial client secret to be regenerated and afterwards stored in SecretsManager"
@@ -166,7 +166,7 @@ variable "application_env_vars" {
     "GOOGLE_SCOPE",
     "GOOGLE_CLIENT_ID",
     "GOOGLE_CLIENT_SECRET",
-    "INIT_REFRESH_TOKEN_CIPHER_KEY"
+    "REFRESH_TOKEN_CIPHER_KEY_CURRENT"
   ]
   description = "environment variables used for application deployment and required infrastructure"
 }
@@ -243,8 +243,12 @@ variable "google_client_secret_dev" {
   sensitive = true
   default   = "NONE"
 }
-variable "init_refresh_token_cipher_key_dev" {
-  type      = string
-  sensitive = true
-  default   = "NONE"
+variable "templates_dir" {
+  type    = string
+  default = "./templates"
+}
+
+variable "scripts_dir" {
+  type    = string
+  default = "./scripts"
 }

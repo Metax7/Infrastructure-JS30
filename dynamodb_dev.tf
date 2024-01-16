@@ -91,7 +91,7 @@ resource "aws_dynamodb_table_item" "js30_liked_items_dev_init_setup" {
   table_name = aws_dynamodb_table.liked_items_ddb_dev.name
   hash_key   = aws_dynamodb_table.liked_items_ddb_dev.hash_key
   range_key  = aws_dynamodb_table.liked_items_ddb_dev.range_key
-  item       = templatefile("init_js30_counter_setup.tftpl", { ItemId = count.index + 1 })
+  item       = templatefile("${var.templates_dir}/init_js30_counter_setup.tftpl", { ItemId = count.index + 1 })
 
   # item = jsonencode(each.value)
 }
