@@ -94,7 +94,7 @@ const generateCipherkey = () => {
  * */
 
 /**
- * Check if the 'resources' property is present and ends with `${CIPHER_KEY_FULLNAME}${CURRENT}`.
+ * Check if the 'resources' property is present and ends with `${CIPHER_KEY_FULLNAME}`.
  *
  * @param {Object} event - The event object.
  * @returns {boolean} - True if the condition is met, false otherwise.
@@ -102,7 +102,7 @@ const generateCipherkey = () => {
 const isValid = (event) => {
     if (event.resources && Array.isArray(event.resources) && event.resources.length > 0) {
         const resourceName = event.resources[0];
-        const expectedResourceSuffix = `${CIPHER_KEY_FULLNAME}${CURRENT}`;
+        const expectedResourceSuffix = `${CIPHER_KEY_FULLNAME}`;
         return resourceName.endsWith(expectedResourceSuffix);
     }
     return false;
