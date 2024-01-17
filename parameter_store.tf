@@ -75,12 +75,18 @@ resource "aws_ssm_parameter" "google_client_id_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_CLIENT_ID"].name}"
   type  = var.js30_parameters_template["GOOGLE_CLIENT_ID"].type
   value = var.google_client_id_dev
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 resource "aws_ssm_parameter" "google_client_secret_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_CLIENT_SECRET"].name}"
   type  = var.js30_parameters_template["GOOGLE_CLIENT_SECRET"].type
   value = var.google_client_secret_dev
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 
