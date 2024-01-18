@@ -29,7 +29,7 @@ resource "aws_lambda_function" "postSignUpConfirmationV2" {
   }
   environment {
     variables = {
-      SSM_PARAMETER_STORE_TTL = 3600
+      SSM_PARAMETER_STORE_TTL = 300
     }
   }
 }
@@ -40,7 +40,7 @@ resource "aws_lambda_layer_version" "nodejs_layer_dev" {
   compatible_architectures = ["x86_64"]
   compatible_runtimes      = ["nodejs20.x"]
   source_code_hash         = data.archive_file.cognitoLambdaLayer.output_base64sha256
-  skip_destroy             = true // this should make aws increment layer version instead of replacing. Additional charges may occure!
+  skip_destroy             = false // true should make aws increment layer version instead of replacing. Additional charges may occure!
 
 }
 
@@ -48,6 +48,7 @@ resource "null_resource" "build_cognitolayer" {
   # triggers = {
   #   build_number = "${timestamp()}"
   # }
+
   provisioner "local-exec" {
     command     = "sh buildlayer.sh"
     working_dir = "${path.module}/${local.trigger_dir_name}"
