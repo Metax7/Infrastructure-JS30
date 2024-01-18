@@ -108,3 +108,13 @@ import {
   to = aws_lambda_function.postSignUpConfirmationV2
   id = "PostSignUpConfirmationV2"
 }
+
+import {
+  to = aws_cloudwatch_event_rule.CaptureNoChangeNotificationSSM_cipherkey_dev
+  id = "default/TriggerLambdaIfCipherKeyNotChanged"
+}
+
+import {
+  to = aws_cloudwatch_event_target.TriggerKeyRotationLambda_dev
+  id = "default/TriggerLambdaIfCipherKeyNotChanged/Id24735f1b-725d-4201-a3fe-4c984368d856"
+}

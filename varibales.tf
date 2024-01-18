@@ -252,3 +252,13 @@ variable "scripts_dir" {
   type    = string
   default = "./scripts"
 }
+
+variable "lambdas_by_gw_dir" {
+  type    = string
+  default = "LambdasTriggeredByApiGateway"
+}
+
+variable "NOT_TRIGGED_MSG" {
+  type    = string
+  default = ">>>> \\033[33mEXECUTOR WAS SURPRESSED BY BLOCKING CONDITION\\033[m <<<<"
+}

@@ -75,12 +75,18 @@ resource "aws_ssm_parameter" "google_client_id_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_CLIENT_ID"].name}"
   type  = var.js30_parameters_template["GOOGLE_CLIENT_ID"].type
   value = var.google_client_id_dev
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 resource "aws_ssm_parameter" "google_client_secret_dev" {
   name  = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["GOOGLE_CLIENT_SECRET"].name}"
   type  = var.js30_parameters_template["GOOGLE_CLIENT_SECRET"].type
   value = var.google_client_secret_dev
+  lifecycle {
+    ignore_changes = [value]
+  }
 }
 
 
@@ -104,6 +110,7 @@ resource "aws_ssm_parameter" "init_refresh_token_cipher_key_dev" {
 
     on_failure  = fail
     interpreter = ["bash", "-c"]
+
   }
   # The provisoners down below didn't work as policy array couldn't be mapped properly to a var in bash script. Revision needed.
   #    provisioner "local-exec" {
@@ -127,6 +134,26 @@ resource "aws_ssm_parameter" "init_refresh_token_cipher_key_dev" {
 
 }
 
+resource "null_resource" "set_no_change_notification_period" {
+
+  provisioner "local-exec" {
+    command = local.is_resetting_policy_locked ? "echo -e '${var.NOT_TRIGGED_MSG}'" : templatefile("${var.scripts_dir}/update-ssm-expiration-policy.sh.tpl", {
+      NAME     = local.rtckc_name,
+      VALUE    = local.rtckc_initval,
+      POLICIES = local.rtckc_policy,
+      PROFILE  = var.aws_profile
+    })
+    on_failure  = fail
+    interpreter = ["bash", "-c"]
+  }
+
+  triggers = {
+    policy_change = local.rtckc_policy
+    exec_lock     = local.is_resetting_policy_locked
+  }
+}
+
+
 data "external" "init_cipherkey_dev" {
   program = [
     "bash", "${var.scripts_dir}/generateInitCipherkey.sh",
@@ -140,8 +167,10 @@ data "external" "init_cipherkey_dev" {
 locals {
   rtckc_name = "${var.parameter_store_prefix}dev/${var.parameter_store_app_prefix}${var.js30_parameters_template["INIT_REFRESH_TOKEN_CIPHER_KEY"].name}"
   //rtckc_expiration_time = timeadd(timestamp(), "24h")
-  rtckc_initval = data.external.init_cipherkey_dev.result.cipherkey
-  rtckc_policy  = jsonencode(templatefile("${var.templates_dir}/ssm_param_NoChangeNotification_policy.tftpl", { AFTER = 10, UNITS = "Hours" }))
+  rtckc_initval              = data.external.init_cipherkey_dev.result.cipherkey
+  rtckc_policy               = jsonencode(templatefile("${var.templates_dir}/ssm_param_NoChangeNotification_policy.tftpl", { AFTER = 8, UNITS = "Hours" }))
+  is_resetting_policy_locked = false
+
 }
 
 
