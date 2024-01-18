@@ -98,7 +98,7 @@ const encrypt = async (text) => {
         if ('Value' in securedParameter.Parameter && 'Version' in securedParameter.Parameter) {
             const cipherKey = securedParameter.Parameter.Value;
             const keyVersion = securedParameter.Parameter.Version;
-            const keyVersionEncoded = Buffer.from(keyVersion).toString(ENCODING_SCHEME);
+            const keyVersionEncoded = Buffer.from(keyVersion.toString()).toString(ENCODING_SCHEME);
             const key = Buffer.from(cipherKey, ENCODING_SCHEME);
             const iv = randomBytes(INIT_VECTOR_SIZE);
             const cipher = createCipheriv(ENCRYPTION_ALG, key, iv);

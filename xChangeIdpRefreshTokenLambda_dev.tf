@@ -20,7 +20,7 @@ resource "aws_lambda_function" "xChangeIdpRefreshToken_dev" {
   tags_all = {
     Created = "manually"
   }
-  timeout = 3
+  timeout = 6
   ephemeral_storage {
     size = 512
   }
@@ -29,7 +29,8 @@ resource "aws_lambda_function" "xChangeIdpRefreshToken_dev" {
   }
   environment {
     variables = {
-      SSM_PARAMETER_STORE_TTL = 3600
+      SSM_PARAMETER_STORE_TTL = 300
+      REVOKED_KEY_VERSIONS    = jsonencode([1, 2])
     }
   }
 }

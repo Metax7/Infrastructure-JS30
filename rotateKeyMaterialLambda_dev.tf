@@ -24,7 +24,7 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
   }
   environment {
     variables = {
-      SSM_PARAMETER_STORE_TTL = 3600
+      SSM_PARAMETER_STORE_TTL = 300
     }
   }
 }

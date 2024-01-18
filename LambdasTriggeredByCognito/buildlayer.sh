@@ -10,6 +10,7 @@ fi
 echo "Installing libraries..."
 npm install axios
 
+
 echo "Moving layer parts into a separe directory..."
 if [ ! -d $LAYER_NAME ]; then
   mkdir $LAYER_NAME
