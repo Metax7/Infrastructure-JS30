@@ -9,6 +9,7 @@ const CIPHER_KEY_FULLNAME = "sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_K
 const CURRENT = "_CURRENT";
 const ssmClient = new SSMClient({ region: "us-west-1" });
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
+const SSM_URL = "http://localhost:2773/systemsmanager/parameters/get";
 
 /**
  * Lambda function handler for key rotation.
@@ -135,8 +136,7 @@ const generateCipherkey = async () => {
  */
 const retrieveSecuredParameter = async () => {
     try {
-        const response = await axios.get(`http://localhost:2773/systemsmanager/parameters
-        /get?name=/${CIPHER_KEY_FULLNAME}${CURRENT}&withDecryption=${WITH_DECRYPTION.toString()}`, {
+        const response = await axios.get(`${SSM_URL}?name=/${CIPHER_KEY_FULLNAME}${CURRENT}&withDecryption=${WITH_DECRYPTION.toString()}`, {
             headers: {
                 'X-Aws-Parameters-Secrets-Token': AWS_SESSION_TOKEN
             }
