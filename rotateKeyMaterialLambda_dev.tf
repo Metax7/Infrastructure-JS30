@@ -22,6 +22,11 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
   tracing_config {
     mode = "PassThrough"
   }
+  environment {
+    variables = {
+      SSM_PARAMETER_STORE_TTL = 3600
+    }
+  }
 }
 
 data "archive_file" "rotate_key_material_dev" {

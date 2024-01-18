@@ -13,6 +13,7 @@ const ENCODING_SCHEME = 'base64';
 const INIT_VECTOR_SIZE = 16;  // 128 bits
 const WITH_DECRYPTION = true;
 const AWS_SESSION_TOKEN = process.env.AWS_SESSION_TOKEN;
+const ENCRYPTION_ALG = 'aes-256-cbc';
 
 
 // AWS Lambda function for adding a new user with a set of 1 elemnent - zero to DynamoDB
@@ -90,7 +91,7 @@ const retrieveSecuredParameter = async () => {
 };
 
 const encrypt = async (text) => {
-    const algorithm = 'aes-256-cbc';
+    
     try {
         const securedParameter = await retrieveSecuredParameter();
         if ('Value' in securedParameter.Parameter && 'Version' in securedParameter.Parameter) {
@@ -99,7 +100,7 @@ const encrypt = async (text) => {
             const keyVersionEncoded = Buffer.from(keyVersion).toString(ENCODING_SCHEME);
             const key = Buffer.from(cipherKey, ENCODING_SCHEME);
             const iv = randomBytes(INIT_VECTOR_SIZE);
-            const cipher = createCipheriv(algorithm, key, iv);
+            const cipher = createCipheriv(ENCRYPTION_ALG, key, iv);
             let encrypted = cipher.update(text, 'utf-8', ENCODING_SCHEME);
             encrypted += cipher.final(ENCODING_SCHEME);
             const encryptedTextWithIV = keyVersionEncoded + iv.toString(ENCODING_SCHEME) + encrypted;

@@ -27,6 +27,11 @@ resource "aws_lambda_function" "postSignUpConfirmationV2" {
   tracing_config {
     mode = "PassThrough"
   }
+  environment {
+    variables = {
+      SSM_PARAMETER_STORE_TTL = 3600
+    }
+  }
 }
 
 resource "aws_lambda_layer_version" "nodejs_layer_dev" {

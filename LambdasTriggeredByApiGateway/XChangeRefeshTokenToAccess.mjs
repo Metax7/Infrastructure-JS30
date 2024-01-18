@@ -41,3 +41,8 @@ const retrieveSecuredParameter = async (queryParameter) => {
         handleAxiosError(error);
     }
 }
+
+const handleAxiosError = (error) => {
+    console.error('Axios Error:', error.message);
+    throw error;
+};
