@@ -1,6 +1,6 @@
 
 resource "aws_lambda_function" "rotateKeyMaterialDev" {
-  architectures                  = ["x86_64"]
+  architectures                  = [var.lambda_arch]
   description                    = "custom lambda function that rotates key material and allows keeping track of old key versions"
   filename                       = "${path.module}/${local.rotate_lambda_dir}/${local.rotate_filename}"
   function_name                  = local.rotate_function_name
@@ -12,7 +12,7 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
   publish                        = null
   reserved_concurrent_executions = -1
   role                           = "arn:aws:iam::021427789578:role/service-role/${local.function_name}-role-gl9reck2"
-  runtime                        = "nodejs20.x"
+  runtime                        = var.node_runtime
   skip_destroy                   = false
   source_code_hash               = data.archive_file.rotate_key_material_dev.output_base64sha256
   timeout                        = 5
@@ -20,11 +20,13 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
     size = 512
   }
   tracing_config {
-    mode = "PassThrough"
+    mode = "Active"
   }
   environment {
     variables = {
       SSM_PARAMETER_STORE_TTL = 300
+      ENV                     = "dev"
+      LOG_LEVEL               = "info"
     }
   }
 }

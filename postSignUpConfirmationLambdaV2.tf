@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "postSignUpConfirmationV2" {
-  architectures                  = ["x86_64"]
+  architectures                  = [var.lambda_arch]
   description                    = "Cognito Post Confirmation Trigger. Adds a new user with a set of 0 liked items to DynamoDB"
   filename                       = "${path.module}/${local.trigger_dir_name}/Sign-Up/${local.filename}"
   function_name                  = local.function_name
@@ -11,25 +11,22 @@ resource "aws_lambda_function" "postSignUpConfirmationV2" {
   publish                        = null
   reserved_concurrent_executions = -1
   role                           = "arn:aws:iam::021427789578:role/service-role/${local.function_name}-role-gl9reck2"
-  runtime                        = "nodejs20.x"
+  runtime                        = var.node_runtime
   skip_destroy                   = false
   source_code_hash               = data.archive_file.postSignUpConfirmationLambda.output_base64sha256
-  tags = {
-    Created = "manually"
-  }
-  tags_all = {
-    Created = "manually"
-  }
+
   timeout = 3
   ephemeral_storage {
     size = 512
   }
   tracing_config {
-    mode = "PassThrough"
+    mode = "Active"
   }
   environment {
     variables = {
       SSM_PARAMETER_STORE_TTL = 300
+      ENV                     = "dev"
+      LOG_LEVEL               = "info"
     }
   }
 }
@@ -37,8 +34,8 @@ resource "aws_lambda_function" "postSignUpConfirmationV2" {
 resource "aws_lambda_layer_version" "nodejs_layer_dev" {
   filename                 = "${path.module}/${local.trigger_dir_name}/${local.layer_filename}.zip"
   layer_name               = "nodejs_layer_dev"
-  compatible_architectures = ["x86_64"]
-  compatible_runtimes      = ["nodejs20.x"]
+  compatible_architectures = [var.lambda_arch]
+  compatible_runtimes      = [var.node_runtime]
   source_code_hash         = data.archive_file.cognitoLambdaLayer.output_base64sha256
   skip_destroy             = false // true should make aws increment layer version instead of replacing. Additional charges may occure!
 
