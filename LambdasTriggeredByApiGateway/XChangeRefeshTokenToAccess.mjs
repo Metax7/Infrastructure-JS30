@@ -16,12 +16,9 @@ const SSM_URL = "http://localhost:2773/systemsmanager/parameters/get";
 const REVOKED_KEY_VERSIONS = process.env.REVOKED_KEY_VERSIONS;
 const ENV = process.env.ENV;
 
-
-AWSXRay.captureHTTPsGlobal(https);
-AWSXRay.capturePromise();
-
-
 export const handler = async (event) => {
+    AWSXRay.captureHTTPsGlobal(https);
+    AWSXRay.capturePromise();
     if (!('idpRefreshToken' in event)) {
         console.warn("No idp refresh token passed. Event: ", event);
         throw new Error("No idp refresh token passed.");
