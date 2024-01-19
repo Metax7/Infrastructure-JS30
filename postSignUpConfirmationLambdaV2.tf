@@ -1,11 +1,15 @@
 resource "aws_lambda_function" "postSignUpConfirmationV2" {
-  architectures                  = [var.lambda_arch]
-  description                    = "Cognito Post Confirmation Trigger. Adds a new user with a set of 0 liked items to DynamoDB"
-  filename                       = "${path.module}/${local.trigger_dir_name}/Sign-Up/${local.filename}"
-  function_name                  = local.function_name
-  handler                        = "${local.function_name}.handler"
-  kms_key_arn                    = null
-  layers                         = ["arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11", aws_lambda_layer_version.nodejs_layer_dev.arn]
+  architectures = [var.lambda_arch]
+  description   = "Cognito Post Confirmation Trigger. Adds a new user with a set of 0 liked items to DynamoDB"
+  filename      = "${path.module}/${local.trigger_dir_name}/Sign-Up/${local.filename}"
+  function_name = local.function_name
+  handler       = "${local.function_name}.handler"
+  kms_key_arn   = null
+  layers = [
+    "arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11",
+    aws_lambda_layer_version.nodejs_layer_dev.arn,
+    aws_lambda_layer_version.x-ray_for_node.arn
+  ]
   memory_size                    = 128
   package_type                   = "Zip"
   publish                        = null

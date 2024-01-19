@@ -1,12 +1,15 @@
 
 resource "aws_lambda_function" "rotateKeyMaterialDev" {
-  architectures                  = [var.lambda_arch]
-  description                    = "custom lambda function that rotates key material and allows keeping track of old key versions"
-  filename                       = "${path.module}/${local.rotate_lambda_dir}/${local.rotate_filename}"
-  function_name                  = local.rotate_function_name
-  handler                        = "${local.rotate_function_name}.handler"
-  kms_key_arn                    = null
-  layers                         = ["arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11"]
+  architectures = [var.lambda_arch]
+  description   = "custom lambda function that rotates key material and allows keeping track of old key versions"
+  filename      = "${path.module}/${local.rotate_lambda_dir}/${local.rotate_filename}"
+  function_name = local.rotate_function_name
+  handler       = "${local.rotate_function_name}.handler"
+  kms_key_arn   = null
+  layers = [
+    "arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11",
+    aws_lambda_layer_version.x-ray_for_node.arn
+  ]
   memory_size                    = 128
   package_type                   = "Zip"
   publish                        = null

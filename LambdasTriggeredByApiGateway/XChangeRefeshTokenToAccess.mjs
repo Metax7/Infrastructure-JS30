@@ -19,6 +19,7 @@ const ENV = process.env.ENV;
 export const handler = async (event) => {
     AWSXRay.captureHTTPsGlobal(https);
     AWSXRay.capturePromise();
+    
     if (!('idpRefreshToken' in event)) {
         console.warn("No idp refresh token passed. Event: ", event);
         throw new Error("No idp refresh token passed.");

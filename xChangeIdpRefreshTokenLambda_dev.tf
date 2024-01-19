@@ -8,7 +8,8 @@ resource "aws_lambda_function" "xChangeIdpRefreshToken_dev" {
   layers = [
     "arn:aws:lambda:us-west-1:997803712105:layer:AWS-Parameters-and-Secrets-Lambda-Extension:11",
     aws_lambda_layer_version.nodejs_layer_dev.arn,
-  aws_lambda_layer_version.x-ray_for_node.arn]
+    aws_lambda_layer_version.x-ray_for_node.arn
+  ]
   memory_size                    = 128
   package_type                   = "Zip"
   publish                        = null
