@@ -262,3 +262,17 @@ variable "NOT_TRIGGED_MSG" {
   type    = string
   default = ">>>> \\033[33mEXECUTOR WAS SURPRESSED BY BLOCKING CONDITION\\033[m <<<<"
 }
+
+variable "lambda_arch" {
+  type    = string
+  default = "x86_64"
+}
+variable "node_runtime" {
+  type    = string
+  default = "nodejs20.x"
+}
+
+variable "zip_dir" {
+  type    = string
+  default = "zip-archives"
+}

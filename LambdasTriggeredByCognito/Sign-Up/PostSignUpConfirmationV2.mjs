@@ -3,10 +3,12 @@ import { PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from "@aws-sdk/client-cognito-identity-provider";
 import { randomBytes, createCipheriv } from 'crypto';
 import axios from 'axios';
+import https from 'https';
+import AWSXRay from 'aws-xray-sdk-core';
 
 const client = new DynamoDBClient();
-const docClient = DynamoDBDocumentClient.from(client);
-const cognitoClient = new CognitoIdentityProviderClient({ region: "us-west-1" });
+const docClient = AWSXRay.captureAWSv3Client(DynamoDBDocumentClient.from(client));
+const cognitoClient = AWSXRay.captureAWSv3Client(new CognitoIdentityProviderClient({ region: process.env.AWS_DEFAULT_REGION }));
 const TableName = 'USERS_LIKED_ITEMS_DEV';
 const CIPHER_KEY_FULLNAME = "/sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
 const ENCODING_SCHEME = 'base64';
@@ -28,6 +30,8 @@ const SSM_URL = "http://localhost:2773/systemsmanager/parameters/get";
  */
 
 export const handler = async (event) => {
+    AWSXRay.captureHTTPsGlobal(https);
+    AWSXRay.capturePromise();
     try {
         if (event.userName !== undefined) {
             const userId = event.userName.toString();

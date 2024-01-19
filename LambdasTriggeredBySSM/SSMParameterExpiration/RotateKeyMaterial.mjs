@@ -1,11 +1,11 @@
 import { randomBytes } from 'crypto';
 import { SSMClient, PutParameterCommand } from "@aws-sdk/client-ssm";
+import AWSXRay from 'aws-xray-sdk-core';
 
 const ENCODING_SCHEME = 'base64';
 const KEY_SIZE = 32; // 256 bits
 const CIPHER_KEY_FULLNAME = "/sandbox/metax7/js30/dev/JS30_REFRESH_TOKEN_CIPHER_KEY";
-const REGION = "us-west-1"
-const ssmClient = new SSMClient({ region: REGION });
+const ssmClient = AWSXRay.captureAWSv3Client (new SSMClient({ region: process.env.AWS_DEFAULT_REGION }));
 
 
 /**
