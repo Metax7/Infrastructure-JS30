@@ -1,5 +1,6 @@
 import axios from 'axios';
 import https from 'https';
+import http from 'http';
 import { createDecipheriv } from 'crypto';
 import AWSXRay from 'aws-xray-sdk-core';
 
@@ -17,6 +18,7 @@ const REVOKED_KEY_VERSIONS = process.env.REVOKED_KEY_VERSIONS;
 const ENV = process.env.ENV;
 
 export const handler = async (event) => {
+    AWSXRay.captureHTTPsGlobal(http);
     AWSXRay.captureHTTPsGlobal(https);
     AWSXRay.capturePromise();
     
