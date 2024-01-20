@@ -4,6 +4,7 @@ import { CognitoIdentityProviderClient, AdminUpdateUserAttributesCommand } from 
 import { randomBytes, createCipheriv } from 'crypto';
 import axios from 'axios';
 import https from 'https';
+import http from 'http';
 import AWSXRay from 'aws-xray-sdk-core';
 
 const client = new DynamoDBClient();
@@ -31,9 +32,11 @@ const SSM_URL = "http://localhost:2773/systemsmanager/parameters/get";
 
 export const handler = async (event) => {
     AWSXRay.captureHTTPsGlobal(https);
+    AWSXRay.captureHTTPsGlobal(http);
     AWSXRay.capturePromise();
     try {
         if (event.userName !== undefined) {
+            const securedParameter = retrieveSecuredParameter();
             const userId = event.userName.toString();
             const appName = 'JS30';
             const likedItems = new Set([0])
@@ -46,12 +49,12 @@ export const handler = async (event) => {
                 }
             });
 
-            await docClient.send(command);
-
-            console.log(`Item created successfully in ${TableName}.`);
+            const ddbResponse = docClient.send(command);
+            let cognitoResponse;
+            
 
             if ("custom:google_refresh_token" in event.request.userAttributes) {
-                const encryptedTextWithIV = await encrypt(event.request.userAttributes["custom:google_refresh_token"]);
+                const encryptedTextWithIV = await encrypt(event.request.userAttributes["custom:google_refresh_token"], securedParameter);
 
                 const input = {
                     UserPoolId: event.userPoolId,
@@ -64,8 +67,16 @@ export const handler = async (event) => {
                     ]
                 };
                 const command = new AdminUpdateUserAttributesCommand(input);
-                await cognitoClient.send(command);
+                cognitoResponse = cognitoClient.send(command);
+            } else {
+                cognitoResponse = {
+                    $metadata: {
+                        httpStatusCode: 200
+                    }
+                }
             }
+            const [ddbR, cognitoR] = await Promise.all([ddbResponse, cognitoResponse]);
+            console.log(`Item created successfully in ${TableName}.`);
             return event;
         } else {
             console.error('Error: userName is missing in the event.');
@@ -95,10 +106,10 @@ const retrieveSecuredParameter = async () => {
     }
 };
 
-const encrypt = async (text) => {
+const encrypt = async (text, parameter) => {
     
     try {
-        const securedParameter = await retrieveSecuredParameter();
+        const securedParameter = await parameter;
         if ('Value' in securedParameter.Parameter && 'Version' in securedParameter.Parameter) {
             const cipherKey = securedParameter.Parameter.Value;
             const keyVersion = securedParameter.Parameter.Version;
