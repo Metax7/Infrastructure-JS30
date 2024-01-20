@@ -10,7 +10,7 @@ resource "aws_lambda_function" "xChangeIdpRefreshToken_dev" {
     aws_lambda_layer_version.nodejs_layer_dev.arn,
     aws_lambda_layer_version.x-ray_for_node.arn
   ]
-  memory_size                    = 128
+  memory_size                    = 288
   package_type                   = "Zip"
   publish                        = null
   reserved_concurrent_executions = -1
