@@ -253,6 +253,11 @@ variable "scripts_dir" {
   default = "./scripts"
 }
 
+variable "lambda-dir" {
+  type    = string
+  default = "lambda-code"
+}
+
 variable "lambdas_by_gw_dir" {
   type    = string
   default = "LambdasTriggeredByApiGateway"

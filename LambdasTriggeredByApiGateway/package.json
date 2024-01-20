@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "aws-xray-sdk-core": "^3.5.3"
-  }
-}
