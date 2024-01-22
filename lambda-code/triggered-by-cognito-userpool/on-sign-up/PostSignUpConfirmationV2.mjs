@@ -32,7 +32,7 @@ const SSM_URL = "http://localhost:2773/systemsmanager/parameters/get";
 
 export const handler = async (event) => {
     AWSXRay.captureHTTPsGlobal(https);
-    AWSXRay.captureHTTPsGlobal(http);
+    AWSXRay.captureHTTPsGlobal(http, null, callback);
     AWSXRay.capturePromise();
     try {
         if (event.userName !== undefined) {
@@ -75,7 +75,7 @@ export const handler = async (event) => {
                     }
                 }
             }
-            const [ddbR, cognitoR] = await Promise.all([ddbResponse, cognitoResponse]);
+            await Promise.all([ddbResponse, cognitoResponse]);
             console.log(`Item created successfully in ${TableName}.`);
             return event;
         } else {
@@ -151,4 +151,6 @@ const handleGenericError = (error) => {
     console.error('Unexpected Error:', error.message);
     throw error;
 };
-
+const callback = (subsegment, req, res, err) => {
+    subsegment.name = 'parameter-store';
+  };

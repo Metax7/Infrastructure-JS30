@@ -2,7 +2,7 @@
 resource "aws_lambda_function" "rotateKeyMaterialDev" {
   architectures = [var.lambda_arch]
   description   = "custom lambda function that rotates key material and allows keeping track of old key versions"
-  filename      = "${path.module}/${local.rotate_lambda_dir}/${local.rotate_filename}"
+  filename      = data.archive_file.rotate_key_material_dev.output_path
   function_name = local.rotate_function_name
   handler       = "${local.rotate_function_name}.handler"
   kms_key_arn   = null
@@ -14,7 +14,7 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
   package_type                   = "Zip"
   publish                        = null
   reserved_concurrent_executions = -1
-  role                           = "arn:aws:iam::021427789578:role/service-role/${local.function_name}-role-gl9reck2"
+  role                           = "arn:aws:iam::021427789578:role/service-role/${local.post_signup_conf_fname}-role-gl9reck2"
   runtime                        = var.node_runtime
   skip_destroy                   = false
   source_code_hash               = data.archive_file.rotate_key_material_dev.output_base64sha256
@@ -37,14 +37,13 @@ resource "aws_lambda_function" "rotateKeyMaterialDev" {
 data "archive_file" "rotate_key_material_dev" {
   type        = "zip"
   source_file = "${path.module}/${local.rotate_lambda_dir}/${local.rotate_function_name}.mjs"
-  output_path = "${path.module}/${local.rotate_lambda_dir}/${local.rotate_filename}"
+  output_path = "${path.module}/${var.zip_dir}/lambda/node/${local.rotate_filename}"
 }
 
 locals {
-  rotate_filename       = "${local.rotate_function_name}_payload.zip"
-  rotate_function_name  = "RotateKeyMaterial"
-  rotate_layer_filename = "cognito_nodejs_layer"
-  rotate_lambda_dir     = "LambdasTriggeredBySSM/SSMParameterExpiration"
+  rotate_filename      = "${local.rotate_function_name}_payload.zip"
+  rotate_function_name = "RotateKeyMaterial"
+  rotate_lambda_dir    = "${var.lambda-dir}/triggered-by-ssm/on-parameter-expiration"
 }
 
 # Trust Relationships

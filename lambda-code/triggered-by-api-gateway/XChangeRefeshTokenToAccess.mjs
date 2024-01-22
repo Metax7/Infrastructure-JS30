@@ -15,10 +15,10 @@ const ENCRYPTION_ALG = 'aes-256-cbc';
 const GOOGLE_URL = "https://oauth2.googleapis.com/token";
 const SSM_URL = "http://localhost:2773/systemsmanager/parameters/get";
 const REVOKED_KEY_VERSIONS = process.env.REVOKED_KEY_VERSIONS;
-const ENV = process.env.ENV;
+
 
 export const handler = async (event) => {
-    AWSXRay.captureHTTPsGlobal(http);
+    AWSXRay.captureHTTPsGlobal(http, null, callback);
     AWSXRay.captureHTTPsGlobal(https);
     AWSXRay.capturePromise();
     
@@ -26,9 +26,10 @@ export const handler = async (event) => {
         console.warn("No idp refresh token passed. Event: ", event);
         throw new Error("No idp refresh token passed.");
     }
+
     const encodedText = event.idpRefreshToken;
-    // const decodedData = syncSubsegment("docode data", decodedData(encodedText));
     const decodedData = decodeData(encodedText);
+
     const [
         clientId,
         clientSecret,
@@ -41,8 +42,11 @@ export const handler = async (event) => {
 
     ]);
 
-    const plaintext = decrypt(decodedData.ciphertext, cipherkey.Parameter.Value, decodedData.iv);
+    const plaintext = captureSync('decryption', ()=>{
+        return decrypt(decodedData.ciphertext, cipherkey.Parameter.Value, decodedData.iv);
+    });
     const freshData = await refreshTokens(clientId.Parameter.Value, clientSecret.Parameter.Value, plaintext);
+
     console.log("Encrypted with key version: ", decodedData.keyVersion);
 
     return freshData.access_token;
@@ -118,7 +122,8 @@ const handleGenericError = (error) => {
     throw new Error('Unexpected Error: ' + error.message);
 };
 
-const syncSubsegment = (name, fn) => {
+
+const captureSync = (name, fn) => {
     const subsegment = AWSXRay.getSegment().addNewSubsegment(name);
     try {
         return fn();
@@ -128,16 +133,20 @@ const syncSubsegment = (name, fn) => {
       } finally {
         subsegment.close();
       }
-}
+};
 
-const asyncSubsegment = async (name, fn) => {
-    const subsegment = AWSXRay.getSegment().addNewSubsegment(name);
-    try {
-      return await fn();
-    } catch (e) {
-      subsegment.addError(e);
-      throw e;
-    } finally {
-      subsegment.close();
-    }
-  }
+// const captureAsync = async (name, fn) => {
+//     const subsegment = AWSXRay.getSegment().addNewSubsegment(name);
+//     try {
+//       return await fn();
+//     } catch (e) {
+//       subsegment.addError(e);
+//       throw e;
+//     } finally {
+//       subsegment.close();
+//     }
+//   };
+
+  const callback = (subsegment, req, res, err) => {
+    subsegment.name = 'parameter-store';
+  };
